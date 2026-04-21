@@ -19,9 +19,14 @@ export class CeleryClientService {
   }
 
   get(queue: CeleryClientQueue): CeleryClient {
-    const redisConnectionStr = `redis://${this.appConfigService.get(
-      'redisHost',
-    )}:${this.appConfigService.get('redisPort')}/`;
+    const redisUrl = this.appConfigService.get('redisUrl');
+    const redisConnectionStr = redisUrl
+      ? redisUrl.endsWith('/')
+        ? redisUrl
+        : `${redisUrl}/`
+      : `redis://${this.appConfigService.get(
+          'redisHost',
+        )}:${this.appConfigService.get('redisPort')}/`;
 
     if (this.clientCache[queue] === undefined) {
       this.clientCache[queue] = createClient(

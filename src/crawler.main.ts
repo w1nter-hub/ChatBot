@@ -88,10 +88,15 @@ async function bootstrap() {
   const chatbotService = app.get(ChatbotService);
   const logger = new Logger('CrawlerWorker');
 
-  // Celery Worker Init
-  const redisConnectionStr = `redis://${appConfigService.get(
-    'redisHost',
-  )}:${appConfigService.get('redisPort')}/`;
+  // Celery Worker Init (same broker URL as API: prefer REDIS_URL for cloud Redis)
+  const redisUrl = appConfigService.get('redisUrl');
+  const redisConnectionStr = redisUrl
+    ? redisUrl.endsWith('/')
+      ? redisUrl
+      : `${redisUrl}/`
+    : `redis://${appConfigService.get('redisHost')}:${appConfigService.get(
+        'redisPort',
+      )}/`;
   const worker = celery.createWorker(
     redisConnectionStr,
     redisConnectionStr,
