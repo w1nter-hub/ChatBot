@@ -27,8 +27,11 @@ MONGO_DBNAME = os.getenv("MONGO_DBNAME")
 mongo = pymongo.MongoClient(MONGO_URI)
 db = mongo[MONGO_DBNAME]
 
-# Celery worker related
-REDIS_CONN_STR = f"redis://{REDIS_HOST}:{REDIS_PORT}/"
+# Celery worker related — must match Node API (Upstash: use REDIS_URL / rediss://)
+if REDIS_URL:
+    REDIS_CONN_STR = REDIS_URL if REDIS_URL.endswith("/") else REDIS_URL + "/"
+else:
+    REDIS_CONN_STR = f"redis://{REDIS_HOST}:{REDIS_PORT}/"
 app = Celery("cosine_similiary_worker", broker=REDIS_CONN_STR, backend=REDIS_CONN_STR)
 app.conf.result_expires = 60
 

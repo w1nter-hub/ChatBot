@@ -516,6 +516,13 @@ export class KnowledgebaseDbService {
     await this.kbEmbeddingCollection.deleteMany({ _id: { $in: ids } });
   }
 
+  /** All chunk embeddings for a knowledge base (used for in-process RAG search). */
+  async listEmbeddingsForKnowledgebase(kbId: ObjectId): Promise<KbEmbedding[]> {
+    return this.kbEmbeddingCollection
+      .find({ knowledgebaseId: kbId })
+      .toArray();
+  }
+
   /*********************************************************
    * CHAT SESSION COLLECTION
    *********************************************************/

@@ -1,10 +1,5 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
-import {
-  CELERY_CLIENT,
-  CeleryClientQueue,
-  CeleryClientService,
-} from '../../common/celery/celery-client.module';
 import { retryWithBackoff } from '../../common/utils';
 import {
   ChatGTPResponse,
@@ -24,11 +19,26 @@ import { PromptService } from '../prompt/prompt.service';
 import { DEFAULT_CHATGPT_PROMPT } from './openaiChatbot.constant';
 import { CustomKeyService } from '../custom-key.service';
 
-interface CosineSimilarityWorkerResponse {
-  chunkId: {
-    $oid: string;
-  };
-  similarity: number;
+/** Cosine similarity between two embedding vectors (same logic as workers/cosine_similarity.py). */
+function cosineSimilarityVec(a: number[], b: number[]): number {
+  if (!a?.length || !b?.length || a.length !== b.length) {
+    return Number.NaN;
+  }
+  let dot = 0;
+  let na = 0;
+  let nb = 0;
+  for (let i = 0; i < a.length; i++) {
+    const x = a[i];
+    const y = b[i];
+    dot += x * y;
+    na += x * x;
+    nb += y * y;
+  }
+  const denom = Math.sqrt(na) * Math.sqrt(nb);
+  if (denom === 0) {
+    return 0;
+  }
+  return dot / denom;
 }
 
 interface ChunkForCompletion extends Chunk {
@@ -45,7 +55,6 @@ export class OpenaiChatbotService {
     private kbDbService: KnowledgebaseDbService,
     private readonly promptService: PromptService,
     private readonly customKeyService: CustomKeyService,
-    @Inject(CELERY_CLIENT) private celeryClient: CeleryClientService,
   ) {
     this.logger = new Logger(OpenaiChatbotService.name);
   }
@@ -175,24 +184,42 @@ export class OpenaiChatbotService {
       embeddingModel,
     );
 
-    const client = this.celeryClient.get(CeleryClientQueue.DEFAULT);
-    const task = client.createTask('worker.get_top_n_chunks');
+    if (!queryEmbedding?.length) {
+      this.logger.warn('getTopNChunks: empty query embedding');
+      return [];
+    }
 
-    const topChunks: CosineSimilarityWorkerResponse[] = JSON.parse(
-      await task.applyAsync([queryEmbedding, kbId.toString(), 3]).get(),
+    // In-process cosine search (no Python Celery worker — fixes long hangs on Render).
+    const TOP_N = 3;
+    const kbEmbeddings = await this.kbDbService.listEmbeddingsForKnowledgebase(
+      kbId,
     );
+
+    const scored: { chunkId: string; similarity: number }[] = [];
+    for (const doc of kbEmbeddings) {
+      if (!doc._id || !doc.embeddings?.length) continue;
+      const sim = cosineSimilarityVec(queryEmbedding, doc.embeddings);
+      if (Number.isNaN(sim)) continue;
+      scored.push({ chunkId: doc._id.toHexString(), similarity: sim });
+    }
+
+    scored.sort((a, b) => b.similarity - a.similarity);
+    const topChunks = scored.slice(0, TOP_N);
 
     const filteredChunks =
       topChunks.length > 2
         ? topChunks.filter((chunk) => chunk.similarity > threshold)
         : topChunks;
 
-    const chunksScoreMap = filteredChunks.reduce((map, chunk) => {
-      map[chunk.chunkId.$oid] = chunk.similarity;
-      return map;
-    }, {});
+    const chunksScoreMap = filteredChunks.reduce<Record<string, number>>(
+      (map, chunk) => {
+        map[chunk.chunkId] = chunk.similarity;
+        return map;
+      },
+      {},
+    );
 
-    const chunkIds = filteredChunks.map((c) => new ObjectId(c.chunkId.$oid));
+    const chunkIds = filteredChunks.map((c) => new ObjectId(c.chunkId));
 
     const topChunkData = (
       await this.kbDbService.getChunkByIdBulk(chunkIds)
@@ -202,7 +229,7 @@ export class OpenaiChatbotService {
       score: chunksScoreMap[chunk._id.toString()],
     }));
 
-    return topChunkData;
+    return topChunkData.sort((a, b) => b.score - a.score);
   }
 
   /** *******************************************
