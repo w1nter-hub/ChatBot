@@ -1,0 +1,164 @@
+.appShell {
+    isolation: isolate;
+}
+
+.appGlow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.appGlow::before {
+    content: "";
+    position: absolute;
+    width: min(120vw, 900px);
+    height: min(120vw, 900px);
+    top: -25%;
+    right: -15%;
+    background: radial-gradient(
+        circle at 40% 40%,
+        rgba(127, 88, 255, 0.16) 0%,
+        rgba(127, 88, 255, 0.04) 45%,
+        transparent 70%
+    );
+}
+
+.appGlow::after {
+    content: "";
+    position: absolute;
+    width: min(100vw, 700px);
+    height: min(100vw, 700px);
+    bottom: -20%;
+    left: -20%;
+    background: radial-gradient(
+        circle at 50% 50%,
+        rgba(53, 194, 161, 0.14) 0%,
+        rgba(53, 194, 161, 0.03) 50%,
+        transparent 72%
+    );
+}
+
+.sidebar {
+    position: relative;
+}
+
+.sidebarNav {
+    :global(a) {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #4a5568;
+        border-radius: 12px;
+        padding: 10px 12px;
+        transition:
+            background 0.2s ease,
+            color 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    :global(a:not(.activeNav):hover) {
+        background: rgba(127, 88, 255, 0.08);
+        color: #5a3ac7;
+    }
+}
+
+.activeNav {
+    font-weight: 600 !important;
+    color: #5a3ac7 !important;
+    background: linear-gradient(
+        135deg,
+        rgba(127, 88, 255, 0.14) 0%,
+        rgba(53, 194, 161, 0.1) 100%
+    ) !important;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.8) inset,
+        0 4px 14px rgba(127, 88, 255, 0.12);
+}
+
+.mainPanel {
+    position: relative;
+}
+
+.appLoading {
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #5a3ac7;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    box-shadow: 0 8px 32px rgba(127, 88, 255, 0.08);
+}
+
+.usageCont {
+    box-sizing: border-box;
+
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+
+    /* white */
+
+    background: #FFFFFF;
+    /* purple/400 */
+
+    border: 2px solid var(--chakra-colors-blue-500);;
+    border-radius: 8px;
+    &.usageContExceeded {
+        border-color: var(--chakra-colors-red-500);
+        background-color: var(--chakra-colors-red-50);
+    }
+}
+.usagePlan {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 28px;
+    margin-bottom: 8px;
+    /* identical to box height, or 140% */
+    
+    
+    /* gray/700 */
+    
+    color: #2D3748;
+}
+.usgaeNumbers {
+    font-family: 'Inter';
+    font-style: normal;
+    font-size: 16px;
+    line-height: 24px;
+    /* identical to box height, or 150% */
+
+
+    /* gray/700 */
+
+    color: #2D3748;
+}
+.usageLabel {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    /* identical to box height, or 143% */
+
+
+    /* gray/600 */
+
+    color: #4A5568;
+}
+.usageUpgradeBtn {
+    width: 100%;
+}
+.progressbar {
+    margin-top: 16px;
+    margin-bottom: 24px;
+}

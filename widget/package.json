@@ -1,0 +1,19 @@
+{
+  "name": "qoldauai-widget",
+  "version": "1.0.0",
+  "description": "QoldauAI embeddable chat widget",
+  "source": [
+    "index.html",
+    "qoldauai-sdk.js"
+  ],
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "parcel": "^2.8.3"
+  }
+}
