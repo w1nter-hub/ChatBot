@@ -249,7 +249,7 @@ export class OpenaiChatbotService {
 
     const chunkIds = filteredChunks.map((c) => new ObjectId(c.chunkId));
 
-    let topChunkData = (
+    let topChunkData: ChunkForCompletion[] = (
       await this.kbDbService.getChunkByIdBulk(chunkIds)
     ).map((chunk) => ({
       ...chunk,
@@ -304,20 +304,22 @@ export class OpenaiChatbotService {
         normalizedQuery,
         3,
       );
-      const pageAsChunks: ChunkForCompletion[] = pageMatches.map((item) => ({
-        _id: item._id,
-        knowledgebaseId: item.knowledgebaseId,
-        dataStoreId: item._id,
-        url: item.url,
-        title: item.title,
-        chunk: item.content || '',
-        status: ChunkStatus.CREATED,
-        type: item.type || DataStoreType.WEBPAGE,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-        content: `${item.title || 'Page'}: ${item.content || ''}`,
-        score: 0.85,
-      }));
+      const pageAsChunks: ChunkForCompletion[] = pageMatches
+        .filter((item) => item._id)
+        .map((item) => ({
+          _id: item._id as ObjectId,
+          knowledgebaseId: item.knowledgebaseId,
+          dataStoreId: item._id as ObjectId,
+          url: item.url,
+          title: item.title,
+          chunk: item.content || '',
+          status: ChunkStatus.CREATED,
+          type: item.type || DataStoreType.WEBPAGE,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+          content: `${item.title || 'Page'}: ${item.content || ''}`,
+          score: 0.85,
+        }));
       topChunkData = pageAsChunks;
     }
 
