@@ -88,6 +88,53 @@ export class ChatbotService {
     });
   }
 
+  private extractQueryTerms(query: string): string[] {
+    return Array.from(
+      new Set(
+        query
+          .toLowerCase()
+          .split(/[^a-zA-Zа-яА-ЯёЁіІңғүұқөһӘә0-9]+/u)
+          .map((s) => s.trim())
+          .filter((s) => s.length >= 3),
+      ),
+    ).slice(0, 8);
+  }
+
+  private buildDatastoreFallbackAnswer(
+    query: string,
+    records: { title?: string; content?: string; url?: string }[],
+  ): string | null {
+    if (!records?.length) return null;
+    const terms = this.extractQueryTerms(query);
+    const first = records[0];
+    const text = (first.content || '').replace(/\s+/g, ' ').trim();
+    if (!text) return null;
+
+    // Try to return a sentence that overlaps with query terms.
+    const sentences = text
+      .split(/(?<=[.!?])\s+|\n+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    let bestSentence = '';
+    let bestScore = -1;
+    for (const sentence of sentences) {
+      const low = sentence.toLowerCase();
+      let score = 0;
+      for (const t of terms) {
+        if (low.includes(t)) score += 1;
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestSentence = sentence;
+      }
+    }
+
+    const snippet = (bestSentence || text).slice(0, 500);
+    const title = first.title ? ` (${first.title})` : '';
+    const source = first.url ? `\nИсточник: ${first.url}` : '';
+    return `По данным страницы${title}: ${snippet}${source}`;
+  }
+
   private async putChatSessionDataToCache(sessionData: ChatSession) {
     return this.redis.set(
       `c_${sessionData._id}`,
@@ -454,6 +501,26 @@ export class ChatbotService {
           25000,
           'Answer generation timeout (retry)',
         );
+
+        // If still fallback-like, return a deterministic answer from trained page text.
+        const stillDefaultLike =
+          !answer?.response ||
+          answer.response.trim().toLowerCase() ===
+            fallbackAnswer.trim().toLowerCase();
+        if (stillDefaultLike) {
+          const dsMatches = await this.kbDbService.searchDataStoreByTerms(
+            kbId,
+            this.extractQueryTerms(query),
+            3,
+          );
+          const dsAnswer = this.buildDatastoreFallbackAnswer(query, dsMatches);
+          if (dsAnswer) {
+            answer = {
+              ...answer,
+              response: dsAnswer,
+            };
+          }
+        }
       }
 
       const msg = {
