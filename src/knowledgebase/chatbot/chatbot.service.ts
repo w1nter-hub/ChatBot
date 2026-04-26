@@ -161,7 +161,8 @@ export class ChatbotService {
     const terms = this.extractQueryTerms(query);
     const byExact = await this.kbDbService.searchDataStoreByKeyword(kbId, query, 3);
     const byTerms = await this.kbDbService.searchDataStoreByTerms(kbId, terms, 3);
-    const merged = [...byExact, ...byTerms];
+    const generic = await this.kbDbService.listDataStoreForKnowledgebase(kbId, 3);
+    const merged = [...byExact, ...byTerms, ...generic];
     const seen = new Set<string>();
     const deduped = merged.filter((r) => {
       const key = r._id?.toHexString() || `${r.url || ''}-${r.title || ''}`;

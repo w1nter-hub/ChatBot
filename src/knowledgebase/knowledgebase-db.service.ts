@@ -437,6 +437,21 @@ export class KnowledgebaseDbService {
       .toArray();
   }
 
+  async listDataStoreForKnowledgebase(
+    knowledgebaseId: ObjectId,
+    limit = 5,
+  ): Promise<KbDataStore[]> {
+    return this.kbDataStoreCollection
+      .find(
+        {
+          knowledgebaseId,
+          content: { $exists: true, $ne: '' },
+        },
+        { sort: { updatedAt: -1 }, limit },
+      )
+      .toArray();
+  }
+
   async deleteKbDataStoreItemsForKnowledgebase(
     kbId: ObjectId,
     type?: DataStoreType,
