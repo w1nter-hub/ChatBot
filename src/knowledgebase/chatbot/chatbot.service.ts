@@ -100,38 +100,69 @@ export class ChatbotService {
     ).slice(0, 8);
   }
 
+  private normalizeToken(token: string): string {
+    // Prefix-based normalization helps with Russian/Kazakh word forms.
+    const cleaned = token.toLowerCase().replace(/[^a-zа-яёіІңғүұқөһӘә0-9]/giu, '');
+    return cleaned.length > 5 ? cleaned.slice(0, 5) : cleaned;
+  }
+
+  private overlapScore(text: string, queryTerms: string[]): number {
+    if (!text || !queryTerms.length) return 0;
+    const textTokens = new Set(
+      text
+        .toLowerCase()
+        .split(/[^a-zA-Zа-яА-ЯёЁіІңғүұқөһӘә0-9]+/u)
+        .map((t) => this.normalizeToken(t))
+        .filter(Boolean),
+    );
+    const normalizedQueryTerms = queryTerms
+      .map((t) => this.normalizeToken(t))
+      .filter(Boolean);
+    if (!normalizedQueryTerms.length) return 0;
+    let matched = 0;
+    for (const qt of normalizedQueryTerms) {
+      if (textTokens.has(qt)) matched += 1;
+    }
+    return matched / normalizedQueryTerms.length;
+  }
+
   private buildDatastoreFallbackAnswer(
     query: string,
     records: { title?: string; content?: string; url?: string }[],
   ): string | null {
     if (!records?.length) return null;
     const terms = this.extractQueryTerms(query);
-    const first = records[0];
-    const text = (first.content || '').replace(/\s+/g, ' ').trim();
-    if (!text) return null;
-
-    // Try to return a sentence that overlaps with query terms.
-    const sentences = text
-      .split(/(?<=[.!?])\s+|\n+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
     let bestSentence = '';
+    let bestRecord: { title?: string; content?: string; url?: string } | null = null;
     let bestScore = -1;
-    for (const sentence of sentences) {
-      const low = sentence.toLowerCase();
-      let score = 0;
-      for (const t of terms) {
-        if (low.includes(t)) score += 1;
+
+    for (const record of records) {
+      const text = (record.content || '').replace(/\s+/g, ' ').trim();
+      if (!text) continue;
+      const sentences = text
+        .split(/(?<=[.!?])\s+|\n+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      for (const sentence of sentences) {
+        const score = this.overlapScore(sentence, terms);
+        if (score > bestScore) {
+          bestScore = score;
+          bestSentence = sentence;
+          bestRecord = record;
+        }
       }
-      if (score > bestScore) {
-        bestScore = score;
-        bestSentence = sentence;
+
+      // Backup in case sentence split produced nothing useful
+      if (!bestSentence && text.length) {
+        bestSentence = text.slice(0, 500);
+        bestRecord = record;
       }
     }
 
-    const snippet = (bestSentence || text).slice(0, 500);
-    const title = first.title ? ` (${first.title})` : '';
-    const source = first.url ? `\nИсточник: ${first.url}` : '';
+    if (!bestRecord || !bestSentence) return null;
+    const snippet = bestSentence.slice(0, 500);
+    const title = bestRecord.title ? ` (${bestRecord.title})` : '';
+    const source = bestRecord.url ? `\nИсточник: ${bestRecord.url}` : '';
     return `По данным страницы${title}: ${snippet}${source}`;
   }
 
