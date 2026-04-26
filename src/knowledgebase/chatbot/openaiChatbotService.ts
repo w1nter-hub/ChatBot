@@ -42,6 +42,25 @@ function cosineSimilarityVec(a: number[], b: number[]): number {
   return dot / denom;
 }
 
+function extractQueryTerms(query: string): string[] {
+  const terms = query
+    .toLowerCase()
+    .split(/[^a-zA-Zа-яА-ЯёЁіІңғүұқөһӘә0-9]+/u)
+    .map((s) => s.trim())
+    .filter((s) => s.length >= 3);
+  return Array.from(new Set(terms)).slice(0, 10);
+}
+
+function termOverlapScore(text: string, terms: string[]): number {
+  if (!text || !terms.length) return 0;
+  const low = text.toLowerCase();
+  let matches = 0;
+  for (const t of terms) {
+    if (low.includes(t)) matches += 1;
+  }
+  return matches / terms.length;
+}
+
 interface ChunkForCompletion extends Chunk {
   content: string;
   score: number;
@@ -179,6 +198,7 @@ export class OpenaiChatbotService {
     embeddingModel?: EmbeddingModel,
   ): Promise<ChunkForCompletion[]> {
     const normalizedQuery = query.trim();
+    const queryTerms = extractQueryTerms(normalizedQuery);
     const isShortQuery = normalizedQuery.split(/\s+/).filter(Boolean).length <= 2;
 
     // Get embeddings for given query
@@ -237,7 +257,7 @@ export class OpenaiChatbotService {
       score: chunksScoreMap[chunk._id.toString()],
     }));
 
-    // Hybrid fallback: for short keyword queries, boost with lexical matches.
+    // Hybrid fallback: lexical matches by full phrase.
     if (isShortQuery) {
       const lexicalMatches = await this.kbDbService.searchChunksByKeyword(
         kbId,
@@ -254,6 +274,27 @@ export class OpenaiChatbotService {
           score: 0.95,
         }));
       topChunkData = [...topChunkData, ...lexicalAsCompletion];
+    }
+
+    // Lexical fallback by query terms works better for natural-language questions.
+    const termMatches = await this.kbDbService.searchChunksByTerms(
+      kbId,
+      queryTerms,
+      8,
+    );
+    if (termMatches.length) {
+      const existing = new Set(topChunkData.map((c) => c._id.toHexString()));
+      const termAsCompletion: ChunkForCompletion[] = termMatches
+        .filter((c) => !existing.has(c._id.toHexString()))
+        .map((chunk) => {
+          const content = `${chunk.title}: ${chunk.chunk}`;
+          return {
+            ...chunk,
+            content,
+            score: Math.max(0.7, termOverlapScore(content, queryTerms)),
+          };
+        });
+      topChunkData = [...topChunkData, ...termAsCompletion];
     }
 
     // Final fallback: if chunks are missing/empty, search original page datastore by keyword.
@@ -278,6 +319,36 @@ export class OpenaiChatbotService {
         score: 0.85,
       }));
       topChunkData = pageAsChunks;
+    }
+
+    // Additional datastore fallback by terms for long natural-language questions.
+    if (topChunkData.length < 2 && queryTerms.length > 0) {
+      const pageMatches = await this.kbDbService.searchDataStoreByTerms(
+        kbId,
+        queryTerms,
+        3,
+      );
+      const existing = new Set(topChunkData.map((c) => c._id.toHexString()));
+      const pageAsChunks: ChunkForCompletion[] = pageMatches
+        .filter((item) => item._id && !existing.has(item._id.toHexString()))
+        .map((item) => {
+          const content = `${item.title || 'Page'}: ${item.content || ''}`;
+          return {
+            _id: item._id,
+            knowledgebaseId: item.knowledgebaseId,
+            dataStoreId: item._id,
+            url: item.url,
+            title: item.title,
+            chunk: item.content || '',
+            status: ChunkStatus.CREATED,
+            type: item.type || DataStoreType.WEBPAGE,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            content,
+            score: Math.max(0.72, termOverlapScore(content, queryTerms)),
+          };
+        });
+      topChunkData = [...topChunkData, ...pageAsChunks];
     }
 
     return topChunkData.sort((a, b) => b.score - a.score).slice(0, 8);

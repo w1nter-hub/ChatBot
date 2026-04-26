@@ -412,6 +412,31 @@ export class KnowledgebaseDbService {
       .toArray();
   }
 
+  async searchDataStoreByTerms(
+    knowledgebaseId: ObjectId,
+    terms: string[],
+    limit = 5,
+  ): Promise<KbDataStore[]> {
+    const normalizedTerms = terms
+      .map((t) => t.trim())
+      .filter((t) => t.length >= 3)
+      .slice(0, 8);
+    if (!normalizedTerms.length) return [];
+    const regexes = normalizedTerms.map(
+      (term) => new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
+    );
+    return this.kbDataStoreCollection
+      .find(
+        {
+          knowledgebaseId,
+          content: { $exists: true, $ne: '' },
+          $or: regexes.flatMap((r) => [{ title: r }, { content: r }, { url: r }]),
+        },
+        { limit },
+      )
+      .toArray();
+  }
+
   async deleteKbDataStoreItemsForKnowledgebase(
     kbId: ObjectId,
     type?: DataStoreType,
@@ -470,6 +495,30 @@ export class KnowledgebaseDbService {
         {
           knowledgebaseId,
           $or: [{ title: regex }, { chunk: regex }, { url: regex }],
+        },
+        { limit },
+      )
+      .toArray();
+  }
+
+  async searchChunksByTerms(
+    knowledgebaseId: ObjectId,
+    terms: string[],
+    limit = 8,
+  ): Promise<Chunk[]> {
+    const normalizedTerms = terms
+      .map((t) => t.trim())
+      .filter((t) => t.length >= 3)
+      .slice(0, 8);
+    if (!normalizedTerms.length) return [];
+    const regexes = normalizedTerms.map(
+      (term) => new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
+    );
+    return this.chunkColleciton
+      .find(
+        {
+          knowledgebaseId,
+          $or: regexes.flatMap((r) => [{ title: r }, { chunk: r }, { url: r }]),
         },
         { limit },
       )
