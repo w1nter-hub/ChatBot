@@ -603,11 +603,16 @@ export class ChatbotService {
         messages: answer.messages,
       };
     } catch (error) {
+      const deterministic = await this.getDeterministicKnowledgeAnswer(
+        kbId,
+        query,
+      );
+      const finalAnswer = deterministic || fallbackAnswer;
       const msg = {
         id: uuidv4(),
         type: MessageType.BOT,
         q: query,
-        a: fallbackAnswer,
+        a: finalAnswer,
         qTokens: 0,
         aTokens: 0,
         ts: new Date(),
@@ -618,7 +623,7 @@ export class ChatbotService {
       };
       await this.updateSessionDataWithNewMsg(sessionData, msg);
       return {
-        response: fallbackAnswer,
+        response: finalAnswer,
         sources: [],
         messages: {},
       };
