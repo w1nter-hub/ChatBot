@@ -20,6 +20,12 @@ export interface ChatBotProps {
 }
 
 const maxMessages = 20;
+const FALLBACK_PATTERNS = [
+	"i don't know how to answer that",
+	"i don't know",
+	"unable to answer",
+	"cannot answer",
+];
 
 const getMessageClassName = (type: string) => {
 	if(type === 'bot') {
@@ -105,9 +111,19 @@ export const ChatBot = ({
 		}
 
 		try {
-			const response = await getChatBotAnswer(newSessionId, question);
+			let response = await getChatBotAnswer(newSessionId, question);
 			setNumberOfMessagesLeft(numberOfMessagesLeft - 1);
 			const messagesToUpdate = newMessages.filter(message => !message.isLoading);
+
+			const initialText = (response as any)?.data?.response || '';
+			const shouldRetry =
+				typeof initialText === 'string' &&
+				FALLBACK_PATTERNS.some((p) => initialText.toLowerCase().includes(p));
+
+			if (shouldRetry) {
+				const expandedQuestion = `Расскажи подробнее по данным сайта: ${question}`;
+				response = await getChatBotAnswer(newSessionId, expandedQuestion);
+			}
  
 			if(response.data?.response) {
 				setMessages([...messagesToUpdate, { type: 'bot', message: response.data?.response, id: uuidv4(), }])
