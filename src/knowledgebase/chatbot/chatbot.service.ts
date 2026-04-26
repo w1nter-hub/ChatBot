@@ -89,13 +89,44 @@ export class ChatbotService {
   }
 
   private extractQueryTerms(query: string): string[] {
+    const stopWords = new Set([
+      'что',
+      'какой',
+      'какая',
+      'какие',
+      'сколько',
+      'кто',
+      'где',
+      'когда',
+      'зачем',
+      'почему',
+      'как',
+      'ли',
+      'это',
+      'этот',
+      'эта',
+      'эти',
+      'для',
+      'про',
+      'по',
+      'на',
+      'в',
+      'и',
+      'а',
+      'но',
+      'қандай',
+      'қанша',
+      'неше',
+      'не',
+      'мен',
+    ]);
     return Array.from(
       new Set(
         query
           .toLowerCase()
           .split(/[^a-zA-Zа-яА-ЯёЁіІңғүұқөһӘә0-9]+/u)
           .map((s) => s.trim())
-          .filter((s) => s.length >= 3),
+          .filter((s) => s.length >= 3 && !stopWords.has(s)),
       ),
     ).slice(0, 8);
   }
@@ -202,10 +233,22 @@ export class ChatbotService {
     query: string,
   ): Promise<string | null> {
     const terms = this.extractQueryTerms(query);
+    const relaxedTerms = Array.from(
+      new Set(
+        terms
+          .map((t) => this.normalizeToken(t))
+          .filter((t) => t.length >= 3),
+      ),
+    );
     const byExact = await this.kbDbService.searchDataStoreByKeyword(kbId, query, 3);
     const byTerms = await this.kbDbService.searchDataStoreByTerms(kbId, terms, 3);
+    const byRelaxedTerms = await this.kbDbService.searchDataStoreByTerms(
+      kbId,
+      relaxedTerms,
+      3,
+    );
     const generic = await this.kbDbService.listDataStoreForKnowledgebase(kbId, 3);
-    const merged = [...byExact, ...byTerms, ...generic];
+    const merged = [...byExact, ...byTerms, ...byRelaxedTerms, ...generic];
     const seen = new Set<string>();
     const deduped = merged.filter((r) => {
       const key = r._id?.toHexString() || `${r.url || ''}-${r.title || ''}`;
