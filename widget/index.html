@@ -190,6 +190,12 @@
 
     <script type="module">
         const STREAM_RESPONSE = true;
+        const FALLBACK_PATTERNS = [
+            "i don't know how to answer that",
+            "i don't know",
+            "unable to answer",
+            "cannot answer",
+        ];
 
 
         // message format
@@ -216,6 +222,23 @@
 
 
         let sessionId = '';
+
+        function isFallbackResponse(text) {
+            if (!text || typeof text !== 'string') return false;
+            const low = text.toLowerCase().trim();
+            return FALLBACK_PATTERNS.some((p) => low.includes(p));
+        }
+
+        function extractResponseText(payload) {
+            if (!payload) return '';
+            try {
+                const parsed = JSON.parse(payload);
+                if (parsed?.response && typeof parsed.response === 'string') {
+                    return parsed.response;
+                }
+            } catch (e) {}
+            return payload;
+        }
 
         function getDomainFromUrl(url) {
             if (!url) return '';
@@ -1004,6 +1027,18 @@
                         msg = replaceAll(msg, '&lt;', '<')
                         msg = replaceAll(msg, '&gt;', '>')
                         msg = replaceAll(msg, '<br/>', '\n')
+
+                        if (isFallbackResponse(msg)) {
+                            try {
+                                const expandedQuestion = `Расскажи подробнее по данным сайта: ${message}`;
+                                const retryResponseRaw = await getAnswer(sessionId, expandedQuestion);
+                                const retryText = extractResponseText(retryResponseRaw);
+                                if (retryText && !isFallbackResponse(retryText)) {
+                                    msg = retryText;
+                                }
+                            } catch (e) {}
+                        }
+
                         const markdownRes = marked.parse(msg);
                         msgHolder.innerHTML = markdownRes;
                         if (collectEmail && isFirstMessage) {
@@ -1070,9 +1105,18 @@
                     });
                     notifyNewSession(sessionId);
                 }
-                const response = await getAnswer(sessionId, message);
+                let response = await getAnswer(sessionId, message);
+                let responseText = extractResponseText(response);
+                if (isFallbackResponse(responseText)) {
+                    const expandedQuestion = `Расскажи подробнее по данным сайта: ${message}`;
+                    const retryResponse = await getAnswer(sessionId, expandedQuestion);
+                    const retryText = extractResponseText(retryResponse);
+                    if (retryText && !isFallbackResponse(retryText)) {
+                        responseText = retryText;
+                    }
+                }
                 const markdownRes = marked.parse(
-                    response.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, "")
+                    responseText.replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, "")
                 )
                 chatMessages.insertAdjacentHTML("beforeend",
                     `<div class="chat-message chatbot"><div class="chat-message-text">${markdownRes}</div></div>`)
