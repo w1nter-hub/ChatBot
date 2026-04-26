@@ -185,6 +185,18 @@ export class ChatbotService {
     );
   }
 
+  private buildChunkFallbackAnswer(
+    chunks: { title?: string; chunk?: string; url?: string; content?: string }[],
+  ): string | null {
+    if (!chunks?.length) return null;
+    const best = chunks[0];
+    const text = (best.content || best.chunk || '').replace(/\s+/g, ' ').trim();
+    if (!text) return null;
+    const title = best.title ? ` (${best.title})` : '';
+    const source = best.url ? `\nИсточник: ${best.url}` : '';
+    return `По данным страницы${title}: ${text.slice(0, 500)}${source}`;
+  }
+
   private async getDeterministicKnowledgeAnswer(
     kbId: ObjectId,
     query: string,
@@ -599,12 +611,28 @@ export class ChatbotService {
           fallbackAnswer,
         );
         if (stillDefaultLike) {
+          const chunkAnswer = this.buildChunkFallbackAnswer(retryTopChunks as any);
+          if (chunkAnswer) {
+            answer = {
+              ...answer,
+              response: chunkAnswer,
+            };
+          }
+
+          const stillDefaultAfterChunk = this.isFallbackLikeResponse(
+            answer?.response,
+            fallbackAnswer,
+          );
+          if (!stillDefaultAfterChunk) {
+            // chunk fallback already produced deterministic answer
+          } else {
           const dsAnswer = await this.getDeterministicKnowledgeAnswer(kbId, query);
           if (dsAnswer) {
             answer = {
               ...answer,
               response: dsAnswer,
             };
+          }
           }
         }
       }
