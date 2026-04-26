@@ -398,7 +398,7 @@ export class ChatbotService {
       //
       const prevMessages = sessionData.messages.slice(-2);
 
-      const answer = await this.withTimeout(
+      let answer = await this.withTimeout(
         this.openaiChatbotService.getAiAnswer(
           sessionData.kbName,
           query,
@@ -413,6 +413,33 @@ export class ChatbotService {
         25000,
         'Answer generation timeout',
       );
+
+      const isShortKeywordQuery =
+        query.trim().split(/\s+/).filter(Boolean).length <= 2;
+      const isDefaultLikeAnswer =
+        !answer?.response ||
+        answer.response.trim().toLowerCase() ===
+          fallbackAnswer.trim().toLowerCase();
+
+      // For short keyword queries, retry once with an expanded intent prompt.
+      if (isShortKeywordQuery && isDefaultLikeAnswer) {
+        const expandedQuery = `Расскажи подробно про "${query.trim()}" на основе контекста сайта.`;
+        answer = await this.withTimeout(
+          this.openaiChatbotService.getAiAnswer(
+            sessionData.kbName,
+            expandedQuery,
+            topChunks,
+            prevMessages,
+            sessionData.defaultAnswer,
+            sessionData.prompt,
+            sessionData.customKeys,
+            sessionData.model,
+            debug,
+          ),
+          25000,
+          'Answer generation timeout (expanded query)',
+        );
+      }
 
       const msg = {
         id: uuidv4(),
