@@ -421,14 +421,29 @@ export class ChatbotService {
         answer.response.trim().toLowerCase() ===
           fallbackAnswer.trim().toLowerCase();
 
-      // For short keyword queries, retry once with an expanded intent prompt.
-      if (isShortKeywordQuery && isDefaultLikeAnswer) {
-        const expandedQuery = `Расскажи подробно про "${query.trim()}" на основе контекста сайта.`;
+      // Retry once with broader retrieval when model returned only default/fallback answer.
+      if (isDefaultLikeAnswer) {
+        const retryTopChunks = await this.withTimeout(
+          this.openaiChatbotService.getTopNChunks(
+            kbId,
+            query,
+            0, // broaden retrieval for retry
+            sessionData.customKeys,
+            sessionData.embeddingModel,
+          ),
+          20000,
+          'Context search timeout (retry)',
+        );
+
+        const retryQuery = isShortKeywordQuery
+          ? `Расскажи подробно про "${query.trim()}" на основе контекста сайта.`
+          : query;
+
         answer = await this.withTimeout(
           this.openaiChatbotService.getAiAnswer(
             sessionData.kbName,
-            expandedQuery,
-            topChunks,
+            retryQuery,
+            retryTopChunks,
             prevMessages,
             sessionData.defaultAnswer,
             sessionData.prompt,
@@ -437,7 +452,7 @@ export class ChatbotService {
             debug,
           ),
           25000,
-          'Answer generation timeout (expanded query)',
+          'Answer generation timeout (retry)',
         );
       }
 
