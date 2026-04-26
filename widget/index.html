@@ -990,7 +990,7 @@
                     });
                     notifyNewSession(sessionId);
                 }
-                const response = getAnswerStream(sessionId, message, (data) => {
+                const response = getAnswerStream(sessionId, message, async (data) => {
 
                     if (data !== "[DONE]") {
                         data = JSON.parse(data);
