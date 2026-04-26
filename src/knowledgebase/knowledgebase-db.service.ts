@@ -435,6 +435,26 @@ export class KnowledgebaseDbService {
     return chunks;
   }
 
+  async searchChunksByKeyword(
+    knowledgebaseId: ObjectId,
+    keyword: string,
+    limit = 8,
+  ): Promise<Chunk[]> {
+    const q = keyword.trim();
+    if (!q) return [];
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escaped, 'i');
+    return this.chunkColleciton
+      .find(
+        {
+          knowledgebaseId,
+          $or: [{ title: regex }, { chunk: regex }, { url: regex }],
+        },
+        { limit },
+      )
+      .toArray();
+  }
+
   async getChunksForDataStoreItem(dId: ObjectId) {
     const res: Pick<Chunk, '_id'>[] = await this.chunkColleciton
       .find({ dataStoreId: dId }, { projection: { _id: 1 } })

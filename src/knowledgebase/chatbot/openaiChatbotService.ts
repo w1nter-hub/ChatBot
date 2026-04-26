@@ -177,9 +177,12 @@ export class OpenaiChatbotService {
     customKeys?: CustomKeyData,
     embeddingModel?: EmbeddingModel,
   ): Promise<ChunkForCompletion[]> {
+    const normalizedQuery = query.trim();
+    const isShortQuery = normalizedQuery.split(/\s+/).filter(Boolean).length <= 2;
+
     // Get embeddings for given query
     const queryEmbedding = await this.openaiService.getEmbedding(
-      query,
+      normalizedQuery,
       this.getCustomKeys(customKeys),
       embeddingModel,
     );
@@ -225,7 +228,7 @@ export class OpenaiChatbotService {
 
     const chunkIds = filteredChunks.map((c) => new ObjectId(c.chunkId));
 
-    const topChunkData = (
+    let topChunkData = (
       await this.kbDbService.getChunkByIdBulk(chunkIds)
     ).map((chunk) => ({
       ...chunk,
@@ -233,7 +236,26 @@ export class OpenaiChatbotService {
       score: chunksScoreMap[chunk._id.toString()],
     }));
 
-    return topChunkData.sort((a, b) => b.score - a.score);
+    // Hybrid fallback: for short keyword queries, boost with lexical matches.
+    if (isShortQuery) {
+      const lexicalMatches = await this.kbDbService.searchChunksByKeyword(
+        kbId,
+        normalizedQuery,
+        5,
+      );
+      const existing = new Set(topChunkData.map((c) => c._id.toHexString()));
+      const lexicalAsCompletion: ChunkForCompletion[] = lexicalMatches
+        .filter((c) => !existing.has(c._id.toHexString()))
+        .map((chunk) => ({
+          ...chunk,
+          content: `${chunk.title}: ${chunk.chunk}`,
+          // lexical hits are typically very relevant for one-word intents
+          score: 0.95,
+        }));
+      topChunkData = [...topChunkData, ...lexicalAsCompletion];
+    }
+
+    return topChunkData.sort((a, b) => b.score - a.score).slice(0, 8);
   }
 
   /** *******************************************
