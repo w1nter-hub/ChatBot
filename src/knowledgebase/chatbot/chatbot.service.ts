@@ -135,6 +135,25 @@ export class ChatbotService {
     return `По данным страницы${title}: ${snippet}${source}`;
   }
 
+  private isFallbackLikeResponse(
+    response: string | undefined | null,
+    fallbackAnswer: string,
+  ): boolean {
+    if (!response || !response.trim()) return true;
+    const r = response.trim().toLowerCase();
+    const f = (fallbackAnswer || '').trim().toLowerCase();
+    if (f && r === f) return true;
+    // Handle custom default-answer wording variations from models.
+    return (
+      r.includes("i don't know") ||
+      r.includes('i do not know') ||
+      r.includes('unable to answer') ||
+      r.includes('cannot answer') ||
+      r.includes('не знаю') ||
+      r.includes('не могу ответить')
+    );
+  }
+
   private async putChatSessionDataToCache(sessionData: ChatSession) {
     return this.redis.set(
       `c_${sessionData._id}`,
@@ -463,10 +482,10 @@ export class ChatbotService {
 
       const isShortKeywordQuery =
         query.trim().split(/\s+/).filter(Boolean).length <= 2;
-      const isDefaultLikeAnswer =
-        !answer?.response ||
-        answer.response.trim().toLowerCase() ===
-          fallbackAnswer.trim().toLowerCase();
+      const isDefaultLikeAnswer = this.isFallbackLikeResponse(
+        answer?.response,
+        fallbackAnswer,
+      );
 
       // Retry once with broader retrieval when model returned only default/fallback answer.
       if (isDefaultLikeAnswer) {
@@ -503,10 +522,10 @@ export class ChatbotService {
         );
 
         // If still fallback-like, return a deterministic answer from trained page text.
-        const stillDefaultLike =
-          !answer?.response ||
-          answer.response.trim().toLowerCase() ===
-            fallbackAnswer.trim().toLowerCase();
+        const stillDefaultLike = this.isFallbackLikeResponse(
+          answer?.response,
+          fallbackAnswer,
+        );
         if (stillDefaultLike) {
           const dsMatches = await this.kbDbService.searchDataStoreByTerms(
             kbId,
