@@ -48,7 +48,8 @@ import { OpenaiChatbotService } from './openaiChatbotService';
 import { WebSocketChatGateway } from '../websocketchat.gateway';
 
 const CHAT_SESION_EXPIRY_TIME = 5 * 60;
-const CHUNK_FILTER_THRESHOLD = 0.3;
+// Lower threshold improves recall for short/keyword queries from widgets.
+const CHUNK_FILTER_THRESHOLD = 0.15;
 const SOURCES_FILTER_THRESHOLD = 0.8;
 
 @Injectable()
@@ -349,64 +350,84 @@ export class ChatbotService {
       return answer;
     }
 
-    //
-    // Get top N matching chunks for current query
-    //
-
     const kbId = sessionData.knowledgebaseId;
+    const fallbackAnswer =
+      sessionData.defaultAnswer || "I don't know how to answer that";
 
-    // Get top n chunks from knowledge base
-    const topChunks = await this.openaiChatbotService.getTopNChunks(
-      kbId,
-      query,
-      CHUNK_FILTER_THRESHOLD,
-      sessionData.customKeys,
-      sessionData.embeddingModel,
-    );
+    try {
+      //
+      // Get top N matching chunks for current query
+      //
+      const topChunks = await this.openaiChatbotService.getTopNChunks(
+        kbId,
+        query,
+        CHUNK_FILTER_THRESHOLD,
+        sessionData.customKeys,
+        sessionData.embeddingModel,
+      );
 
-    //
-    // Get answer for query
-    //
+      //
+      // Get answer for query
+      //
+      const prevMessages = sessionData.messages.slice(-2);
 
-    // Get answer from chatgpt
-    const prevMessages = sessionData.messages.slice(-2);
+      const answer = await this.openaiChatbotService.getAiAnswer(
+        sessionData.kbName,
+        query,
+        topChunks,
+        prevMessages,
+        sessionData.defaultAnswer,
+        sessionData.prompt,
+        sessionData.customKeys,
+        sessionData.model,
+        debug,
+      );
 
-    const answer = await this.openaiChatbotService.getAiAnswer(
-      sessionData.kbName,
-      query,
-      topChunks,
-      prevMessages,
-      sessionData.defaultAnswer,
-      sessionData.prompt,
-      sessionData.customKeys,
-      sessionData.model,
-      debug,
-    );
+      const msg = {
+        id: uuidv4(),
+        type: MessageType.BOT,
+        q: query,
+        a: answer.response,
+        qTokens: answer.tokenUsage.prompt,
+        aTokens: answer.tokenUsage.completion,
+        ts: new Date(),
+        read: true,
+        msg: null,
+        sender: null,
+        sessionId: sessionId,
+      };
+      await this.updateSessionDataWithNewMsg(sessionData, msg);
 
-    const msg = {
-      id: uuidv4(),
-      type: MessageType.BOT,
-      q: query,
-      a: answer.response,
-      qTokens: answer.tokenUsage.prompt,
-      aTokens: answer.tokenUsage.completion,
-      ts: new Date(),
-      read: true,
-      msg: null,
-      sender: null,
-      sessionId: sessionId,
-    };
-    await this.updateSessionDataWithNewMsg(sessionData, msg);
+      const sources = topChunks
+        .filter((c) => c.score > SOURCES_FILTER_THRESHOLD)
+        .map((c) => ({ url: c.url, title: c.title }));
 
-    const sources = topChunks
-      .filter((c) => c.score > SOURCES_FILTER_THRESHOLD)
-      .map((c) => ({ url: c.url, title: c.title }));
-
-    return {
-      response: answer.response,
-      sources,
-      messages: answer.messages,
-    };
+      return {
+        response: answer.response,
+        sources,
+        messages: answer.messages,
+      };
+    } catch (error) {
+      const msg = {
+        id: uuidv4(),
+        type: MessageType.BOT,
+        q: query,
+        a: fallbackAnswer,
+        qTokens: 0,
+        aTokens: 0,
+        ts: new Date(),
+        read: true,
+        msg: null,
+        sender: null,
+        sessionId: sessionId,
+      };
+      await this.updateSessionDataWithNewMsg(sessionData, msg);
+      return {
+        response: fallbackAnswer,
+        sources: [],
+        messages: {},
+      };
+    }
   }
 
   async saveManualChat(sessionId: string, chatData: ChatQueryAnswer) {
@@ -499,97 +520,124 @@ export class ChatbotService {
       return of(answer);
     }
 
-    //
-    // Get top N matching chunks for current query
-    //
-    // Get top n chunks from knowledge base
-    const topChunks = await this.openaiChatbotService.getTopNChunks(
-      kbId,
-      query,
-      CHUNK_FILTER_THRESHOLD,
-      sessionData.customKeys,
-      sessionData.embeddingModel,
-    );
+    try {
+      //
+      // Get top N matching chunks for current query
+      //
+      const topChunks = await this.openaiChatbotService.getTopNChunks(
+        kbId,
+        query,
+        CHUNK_FILTER_THRESHOLD,
+        sessionData.customKeys,
+        sessionData.embeddingModel,
+      );
 
-    // Fetch previous messages from bot
-    const prevMessages = this.getPreviousNMessagesFromBot(
-      sessionData.messages,
-      2,
-    );
+      // Fetch previous messages from bot
+      const prevMessages = this.getPreviousNMessagesFromBot(
+        sessionData.messages,
+        2,
+      );
 
-    //
-    // Get answer for query
-    //
-    const answerStream = await this.openaiChatbotService.getAiAnswerStream(
-      sessionData.kbName,
-      query,
-      topChunks,
-      prevMessages,
-      async (answer, usage) => {
-        const msg = {
-          id: uuidv4(),
-          type: MessageType.BOT,
-          q: query,
-          a: answer,
-          qTokens: usage.prompt,
-          aTokens: usage.completion,
-          ts: new Date(),
-          read: true,
-          msg: null,
-          sender: null,
-          sessionId: sessionId,
-        };
-        this.webSocketChatGateway.server
-          .to(kbId.toHexString())
-          .emit('chat_broadcast', msg);
-        await this.updateSessionDataWithNewMsg(sessionData, msg);
+      //
+      // Get answer for query
+      //
+      const answerStream = await this.openaiChatbotService.getAiAnswerStream(
+        sessionData.kbName,
+        query,
+        topChunks,
+        prevMessages,
+        async (answer, usage) => {
+          const msg = {
+            id: uuidv4(),
+            type: MessageType.BOT,
+            q: query,
+            a: answer,
+            qTokens: usage.prompt,
+            aTokens: usage.completion,
+            ts: new Date(),
+            read: true,
+            msg: null,
+            sender: null,
+            sessionId: sessionId,
+          };
+          this.webSocketChatGateway.server
+            .to(kbId.toHexString())
+            .emit('chat_broadcast', msg);
+          await this.updateSessionDataWithNewMsg(sessionData, msg);
 
-        // Call webhook with msg
-        this.webhookService.callWebhook(sessionData.userId, {
-          event: WebhookEventType.CHATBOT_MSG,
-          payload: {
-            q: msg.q,
-            a: msg.a,
-            ts: msg.ts,
-            session: {
-              id: sessionData._id.toHexString(),
-              kbName: sessionData.kbName,
-              knowledgebaseId: sessionData.knowledgebaseId.toHexString(),
-              src: sessionData.src,
-              userData: sessionData.userData,
-              startedAt: sessionData.startedAt,
-              updatedAt: sessionData.updatedAt,
+          // Call webhook with msg
+          this.webhookService.callWebhook(sessionData.userId, {
+            event: WebhookEventType.CHATBOT_MSG,
+            payload: {
+              q: msg.q,
+              a: msg.a,
+              ts: msg.ts,
+              session: {
+                id: sessionData._id.toHexString(),
+                kbName: sessionData.kbName,
+                knowledgebaseId: sessionData.knowledgebaseId.toHexString(),
+                src: sessionData.src,
+                userData: sessionData.userData,
+                startedAt: sessionData.startedAt,
+                updatedAt: sessionData.updatedAt,
+              },
             },
-          },
-        });
-      },
-      sessionData.defaultAnswer,
-      sessionData.prompt,
-      sessionData.model,
-      sessionData.customKeys,
-    );
-
-    const sources = topChunks
-      .filter((c) => c.score > SOURCES_FILTER_THRESHOLD)
-      .map((c) => ({ url: c.url, title: c.title }));
-
-    // Transfer the stream into MessageEvent which is what sse wants
-    return answerStream.pipe(
-      map((value) => {
-        const newVal: MessageEvent = {
-          data: value,
-        };
-
-        return newVal;
-      }),
-      skipLast(1),
-      endWith(
-        {
-          data: { content: '', sources },
+          });
         },
-        '[DONE]',
-      ),
-    );
+        sessionData.defaultAnswer,
+        sessionData.prompt,
+        sessionData.model,
+        sessionData.customKeys,
+      );
+
+      const sources = topChunks
+        .filter((c) => c.score > SOURCES_FILTER_THRESHOLD)
+        .map((c) => ({ url: c.url, title: c.title }));
+
+      // Transfer the stream into MessageEvent which is what sse wants
+      return answerStream.pipe(
+        map((value) => {
+          const newVal: MessageEvent = {
+            data: value,
+          };
+
+          return newVal;
+        }),
+        skipLast(1),
+        endWith(
+          {
+            data: { content: '', sources },
+          },
+          '[DONE]',
+        ),
+      );
+    } catch (error) {
+      const fallbackAnswer =
+        sessionData.defaultAnswer || "I don't know how to answer that";
+      const msg = {
+        id: uuidv4(),
+        type: MessageType.BOT,
+        q: query,
+        a: fallbackAnswer,
+        qTokens: 0,
+        aTokens: 0,
+        ts: new Date(),
+        read: true,
+        msg: null,
+        sender: null,
+        sessionId: sessionId,
+      };
+      this.webSocketChatGateway.server
+        .to(kbId.toHexString())
+        .emit('chat_broadcast', msg);
+      await this.updateSessionDataWithNewMsg(sessionData, msg);
+      return of(
+        {
+          data: { content: fallbackAnswer, sources: [] },
+        } as any,
+        '[DONE]' as any,
+      );
+    }
   }
 
   /**

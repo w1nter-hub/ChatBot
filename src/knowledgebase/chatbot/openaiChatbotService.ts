@@ -190,7 +190,7 @@ export class OpenaiChatbotService {
     }
 
     // In-process cosine search (no Python Celery worker — fixes long hangs on Render).
-    const TOP_N = 3;
+    const TOP_N = 8;
     const kbEmbeddings = await this.kbDbService.listEmbeddingsForKnowledgebase(
       kbId,
     );
@@ -206,10 +206,14 @@ export class OpenaiChatbotService {
     scored.sort((a, b) => b.similarity - a.similarity);
     const topChunks = scored.slice(0, TOP_N);
 
-    const filteredChunks =
+    let filteredChunks =
       topChunks.length > 2
         ? topChunks.filter((chunk) => chunk.similarity > threshold)
         : topChunks;
+    if (filteredChunks.length === 0) {
+      // For short / noisy queries (e.g. one-word), keep best matches anyway.
+      filteredChunks = topChunks.slice(0, 3);
+    }
 
     const chunksScoreMap = filteredChunks.reduce<Record<string, number>>(
       (map, chunk) => {
