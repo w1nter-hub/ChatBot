@@ -13,6 +13,7 @@ import {
   Chunk,
   ChunkStatus,
   CustomKeyData,
+  DataStoreType,
   EmbeddingModel,
 } from '../knowledgebase.schema';
 import { PromptService } from '../prompt/prompt.service';
@@ -253,6 +254,30 @@ export class OpenaiChatbotService {
           score: 0.95,
         }));
       topChunkData = [...topChunkData, ...lexicalAsCompletion];
+    }
+
+    // Final fallback: if chunks are missing/empty, search original page datastore by keyword.
+    if (topChunkData.length === 0) {
+      const pageMatches = await this.kbDbService.searchDataStoreByKeyword(
+        kbId,
+        normalizedQuery,
+        3,
+      );
+      const pageAsChunks: ChunkForCompletion[] = pageMatches.map((item) => ({
+        _id: item._id,
+        knowledgebaseId: item.knowledgebaseId,
+        dataStoreId: item._id,
+        url: item.url,
+        title: item.title,
+        chunk: item.content || '',
+        status: ChunkStatus.CREATED,
+        type: item.type || DataStoreType.WEBPAGE,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+        content: `${item.title || 'Page'}: ${item.content || ''}`,
+        score: 0.85,
+      }));
+      topChunkData = pageAsChunks;
     }
 
     return topChunkData.sort((a, b) => b.score - a.score).slice(0, 8);

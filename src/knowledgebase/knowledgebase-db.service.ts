@@ -391,6 +391,27 @@ export class KnowledgebaseDbService {
     await this.kbDataStoreCollection.deleteOne({ _id: id });
   }
 
+  async searchDataStoreByKeyword(
+    knowledgebaseId: ObjectId,
+    keyword: string,
+    limit = 5,
+  ): Promise<KbDataStore[]> {
+    const q = keyword.trim();
+    if (!q) return [];
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escaped, 'i');
+    return this.kbDataStoreCollection
+      .find(
+        {
+          knowledgebaseId,
+          content: { $exists: true, $ne: '' },
+          $or: [{ title: regex }, { content: regex }, { url: regex }],
+        },
+        { limit },
+      )
+      .toArray();
+  }
+
   async deleteKbDataStoreItemsForKnowledgebase(
     kbId: ObjectId,
     type?: DataStoreType,
