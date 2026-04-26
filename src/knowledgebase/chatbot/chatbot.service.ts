@@ -259,6 +259,20 @@ export class ChatbotService {
     return this.buildDatastoreFallbackAnswer(query, deduped);
   }
 
+  private async finalizeAnswerText(
+    kbId: ObjectId,
+    query: string,
+    candidate: string | undefined | null,
+    fallbackAnswer: string,
+  ): Promise<string> {
+    if (!this.isFallbackLikeResponse(candidate, fallbackAnswer)) {
+      return (candidate || '').trim();
+    }
+    const deterministic = await this.getDeterministicKnowledgeAnswer(kbId, query);
+    if (deterministic) return deterministic;
+    return 'По обученным данным я не нашёл точный фрагмент для этого вопроса. Переформулируйте вопрос или задайте его чуть подробнее.';
+  }
+
   private async putChatSessionDataToCache(sessionData: ChatSession) {
     return this.redis.set(
       `c_${sessionData._id}`,
@@ -680,11 +694,18 @@ export class ChatbotService {
         }
       }
 
+      const finalResponse = await this.finalizeAnswerText(
+        kbId,
+        query,
+        answer?.response,
+        fallbackAnswer,
+      );
+
       const msg = {
         id: uuidv4(),
         type: MessageType.BOT,
         q: query,
-        a: answer.response,
+        a: finalResponse,
         qTokens: answer.tokenUsage.prompt,
         aTokens: answer.tokenUsage.completion,
         ts: new Date(),
@@ -700,16 +721,17 @@ export class ChatbotService {
         .map((c) => ({ url: c.url, title: c.title }));
 
       return {
-        response: answer.response,
+        response: finalResponse,
         sources,
         messages: answer.messages,
       };
     } catch (error) {
-      const deterministic = await this.getDeterministicKnowledgeAnswer(
+      const finalAnswer = await this.finalizeAnswerText(
         kbId,
         query,
+        fallbackAnswer,
+        fallbackAnswer,
       );
-      const finalAnswer = deterministic || fallbackAnswer;
       const msg = {
         id: uuidv4(),
         type: MessageType.BOT,
