@@ -69,6 +69,25 @@ export class ChatbotService {
     private webSocketChatGateway: WebSocketChatGateway,
   ) { }
 
+  private withTimeout<T>(
+    promise: Promise<T>,
+    timeoutMs: number,
+    timeoutMessage: string,
+  ): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs);
+      promise
+        .then((result) => {
+          clearTimeout(timer);
+          resolve(result);
+        })
+        .catch((err) => {
+          clearTimeout(timer);
+          reject(err);
+        });
+    });
+  }
+
   private async putChatSessionDataToCache(sessionData: ChatSession) {
     return this.redis.set(
       `c_${sessionData._id}`,
@@ -278,10 +297,14 @@ export class ChatbotService {
       // check the usage count
       if (year === currYear && month === currMonth) {
         if (monthUsageData.monthUsage.weightedMsgCount >= 0.8 * maxUsage) {
-          // Trigger notification to user about token limit
-          const client = this.celeryClient.get(CeleryClientQueue.CRAWLER);
-          const task = client.createTask('tasks.notify_token_limit');
-          await task.applyAsync([userId.toHexString()]);
+          // Best-effort notification; should never block answering user queries.
+          try {
+            const client = this.celeryClient.get(CeleryClientQueue.CRAWLER);
+            const task = client.createTask('tasks.notify_token_limit');
+            await task.applyAsync([userId.toHexString()]);
+          } catch (e) {
+            // Ignore celery failures here to keep chatbot responses available.
+          }
         }
         return monthUsageData.monthUsage.weightedMsgCount < maxUsage;
       } else {
@@ -358,12 +381,16 @@ export class ChatbotService {
       //
       // Get top N matching chunks for current query
       //
-      const topChunks = await this.openaiChatbotService.getTopNChunks(
-        kbId,
-        query,
-        CHUNK_FILTER_THRESHOLD,
-        sessionData.customKeys,
-        sessionData.embeddingModel,
+      const topChunks = await this.withTimeout(
+        this.openaiChatbotService.getTopNChunks(
+          kbId,
+          query,
+          CHUNK_FILTER_THRESHOLD,
+          sessionData.customKeys,
+          sessionData.embeddingModel,
+        ),
+        20000,
+        'Context search timeout',
       );
 
       //
@@ -371,16 +398,20 @@ export class ChatbotService {
       //
       const prevMessages = sessionData.messages.slice(-2);
 
-      const answer = await this.openaiChatbotService.getAiAnswer(
-        sessionData.kbName,
-        query,
-        topChunks,
-        prevMessages,
-        sessionData.defaultAnswer,
-        sessionData.prompt,
-        sessionData.customKeys,
-        sessionData.model,
-        debug,
+      const answer = await this.withTimeout(
+        this.openaiChatbotService.getAiAnswer(
+          sessionData.kbName,
+          query,
+          topChunks,
+          prevMessages,
+          sessionData.defaultAnswer,
+          sessionData.prompt,
+          sessionData.customKeys,
+          sessionData.model,
+          debug,
+        ),
+        25000,
+        'Answer generation timeout',
       );
 
       const msg = {
