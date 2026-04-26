@@ -154,6 +154,24 @@ export class ChatbotService {
     );
   }
 
+  private async getDeterministicKnowledgeAnswer(
+    kbId: ObjectId,
+    query: string,
+  ): Promise<string | null> {
+    const terms = this.extractQueryTerms(query);
+    const byExact = await this.kbDbService.searchDataStoreByKeyword(kbId, query, 3);
+    const byTerms = await this.kbDbService.searchDataStoreByTerms(kbId, terms, 3);
+    const merged = [...byExact, ...byTerms];
+    const seen = new Set<string>();
+    const deduped = merged.filter((r) => {
+      const key = r._id?.toHexString() || `${r.url || ''}-${r.title || ''}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    return this.buildDatastoreFallbackAnswer(query, deduped);
+  }
+
   private async putChatSessionDataToCache(sessionData: ChatSession) {
     return this.redis.set(
       `c_${sessionData._id}`,
@@ -442,6 +460,30 @@ export class ChatbotService {
     const kbId = sessionData.knowledgebaseId;
     const fallbackAnswer =
       sessionData.defaultAnswer || "I don't know how to answer that";
+    const isShortKeywordQuery =
+      query.trim().split(/\s+/).filter(Boolean).length <= 2;
+
+    // Fast deterministic path for short keyword queries.
+    if (isShortKeywordQuery) {
+      const deterministic = await this.getDeterministicKnowledgeAnswer(kbId, query);
+      if (deterministic) {
+        const msg = {
+          id: uuidv4(),
+          type: MessageType.BOT,
+          q: query,
+          a: deterministic,
+          qTokens: 0,
+          aTokens: 0,
+          ts: new Date(),
+          read: true,
+          msg: null,
+          sender: null,
+          sessionId: sessionId,
+        };
+        await this.updateSessionDataWithNewMsg(sessionData, msg);
+        return { response: deterministic, sources: [], messages: {} };
+      }
+    }
 
     try {
       //
@@ -480,8 +522,6 @@ export class ChatbotService {
         'Answer generation timeout',
       );
 
-      const isShortKeywordQuery =
-        query.trim().split(/\s+/).filter(Boolean).length <= 2;
       const isDefaultLikeAnswer = this.isFallbackLikeResponse(
         answer?.response,
         fallbackAnswer,
@@ -527,12 +567,7 @@ export class ChatbotService {
           fallbackAnswer,
         );
         if (stillDefaultLike) {
-          const dsMatches = await this.kbDbService.searchDataStoreByTerms(
-            kbId,
-            this.extractQueryTerms(query),
-            3,
-          );
-          const dsAnswer = this.buildDatastoreFallbackAnswer(query, dsMatches);
+          const dsAnswer = await this.getDeterministicKnowledgeAnswer(kbId, query);
           if (dsAnswer) {
             answer = {
               ...answer,
