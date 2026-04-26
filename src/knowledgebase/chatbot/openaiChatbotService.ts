@@ -508,7 +508,7 @@ export class OpenaiChatbotService {
     const answer = await this.openaiService.getChatGptCompletion(
       {
         messages: messages as any,
-        temperature: 0.1,
+        temperature: 0,
         frequency_penalty: 0,
         presence_penalty: 0,
         top_p: 1,

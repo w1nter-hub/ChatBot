@@ -24,9 +24,12 @@ export interface ChatGTPResponse {
 export type ChatGptPromptMessages = CreateChatCompletionRequest['messages'];
 
 function getOpenAiClient(keys: string[]): [OpenAIApi, string, string] {
-  // Select random key from the given list of keys
-  const randomKeyIdx = Math.floor(Math.random() * keys.length);
-  const selectedKey = keys[randomKeyIdx];
+  const validKeys = (keys || []).map((k) => (k || '').trim()).filter(Boolean);
+  if (validKeys.length === 0) {
+    throw new Error('No valid OpenAI keys configured');
+  }
+  // Use deterministic key selection for stable behavior across same queries.
+  const selectedKey = validKeys[0];
   const selectedKeyHash = createHash('md5').update(selectedKey).digest('hex');
 
   const config = new Configuration({
@@ -47,7 +50,9 @@ export class OpenaiService {
     this.defaultKeys = [
       this.appConfig.get('openaiKey'),
       this.appConfig.get('openaiKey2'),
-    ];
+    ]
+      .map((k) => (k || '').trim())
+      .filter(Boolean);
 
     this.logger = new Logger(OpenaiService.name);
 
