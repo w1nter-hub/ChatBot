@@ -46,7 +46,7 @@ import Members from "../Members/Members";
 import { OfflineMessagesNew } from "../OfflineMessages/OfflineMessagesNew";
 import Analytics from "../Analytics/Analytics";
 import styles from "./EditChatbot.module.scss";
-import { QOLDAUAI_WIDGET_URL } from '../../config';
+import { QOLDAUAI_WIDGET_URL, baseURL } from '../../config';
 
 
 export function validateEmailAddress(email: string) {
@@ -511,6 +511,11 @@ console.log(permissions.get(), 'permissionspermissions')
 
 
 
+		const resolvedBaseUrl = baseURL || window.location.origin;
+		const encodedBaseUrl = encodeURIComponent(resolvedBaseUrl);
+		const embedUrl = `${QOLDAUAI_WIDGET_URL}/?kbId=${chatBot._id}&embed=true&hide-chat-actions=true&baseUrl=${encodedBaseUrl}`;
+		const launcherScript = `<script id="__qoldauaiSdk__" data-chatbot-id="${chatBot._id}" data-base-url="${resolvedBaseUrl}" src="${QOLDAUAI_WIDGET_URL}/qoldauai-sdk.js"></script>`;
+
 		return <VStack spacing={12} alignItems="start" p={2}>
 			<VStack alignItems="start">
 				<Heading fontSize="md">Лаунчері бар чат-бот</Heading>
@@ -518,6 +523,7 @@ console.log(permissions.get(), 'permissionspermissions')
 				<Box className={styles.codeBlock}>
 					<span style={{ color: '#808080' }}>&lt;<span style={{ color: '#ed6a43' }}>script</span>
 						<span style={{ color: '#0086b3' }}> id</span>=<span style={{ color: '#183691' }}>"__qoldauaiSdk__"</span><span style={{ color: '#0086b3', paddingLeft: '4px' }}> data-chatbot-id</span>=<span style={{ color: '#183691' }}>"{chatBot._id}"</span>
+						<span style={{ color: '#0086b3', paddingLeft: '4px' }}> data-base-url</span>=<span style={{ color: '#183691' }}>"{resolvedBaseUrl}"</span>
 						<br></br>
 						<span style={{ color: '#0086b3', paddingLeft: '20px' }}> src</span>=<span style={{ color: '#183691' }}>"{QOLDAUAI_WIDGET_URL}/qoldauai-sdk.js"</span>
 						&gt;</span>
@@ -533,7 +539,7 @@ console.log(permissions.get(), 'permissionspermissions')
 						isDisabled={isSubmitting}
 						onClick={() => {
 							navigator.clipboard.writeText(
-								`<script id="__qoldauaiSdk__" src="${QOLDAUAI_WIDGET_URL}/qoldauai-sdk.js" data-chatbot-id="${chatBot._id}"></script>`
+								launcherScript
 							);
 							toast({
 								title: `Буферге көшірілді`,
@@ -555,7 +561,7 @@ console.log(permissions.get(), 'permissionspermissions')
 						<span style={{ color: '#0086b3', paddingLeft: '4px' }}> height</span>=<span style={{ color: '#183691' }}>"700px"</span>
 						<span style={{ color: '#0086b3', paddingLeft: '4px' }}> frameborder</span>=<span style={{ color: '#183691' }}>"0"</span>
 						<br></br>
-						<span style={{ color: '#0086b3', paddingLeft: '20px' }}> src</span>=<span style={{ color: '#183691' }}>"{QOLDAUAI_WIDGET_URL}/?kbId={chatBot._id}&embed=true&hide-chat-actions=true"</span>
+						<span style={{ color: '#0086b3', paddingLeft: '20px' }}> src</span>=<span style={{ color: '#183691' }}>"{embedUrl}"</span>
 						&gt;</span>
 					<br></br>
 					<span style={{ color: '#808080' }}>&lt;/<span style={{ color: '#ed6a43' }}>iframe</span>&gt;</span>
@@ -570,7 +576,7 @@ console.log(permissions.get(), 'permissionspermissions')
 						onClick={() => {
 							navigator.clipboard.writeText(
 								`<iframe width="500px" height="700px" frameborder="0"
-								src="${QOLDAUAI_WIDGET_URL}/?kbId=${chatBot._id}&embed=true&hide-chat-actions=true">
+								src="${embedUrl}">
 								</iframe>`
 							);
 							toast({
@@ -590,7 +596,7 @@ console.log(permissions.get(), 'permissionspermissions')
 					Төмендегі бірегей сілтемені кез келген адаммен бөлісе аласыз.
 				</Text>
 				<Box className={styles.codeBlock}>
-					<span style={{color: '#0086b3'}}>{QOLDAUAI_WIDGET_URL}/?kbId={chatBot._id}&embed=true&hide-chat-actions=true</span>
+					<span style={{color: '#0086b3'}}>{embedUrl}</span>
 				</Box>
 				<HStack mt="6">
 					<Button
@@ -601,7 +607,7 @@ console.log(permissions.get(), 'permissionspermissions')
 						isDisabled={isSubmitting}
 						onClick={() => {
 							navigator.clipboard.writeText(
-								`${QOLDAUAI_WIDGET_URL}/?kbId=${chatBot._id}&embed=true&hide-chat-actions=true`
+								embedUrl
 							);
 							toast({
 								title: `Буферге көшірілді`,
