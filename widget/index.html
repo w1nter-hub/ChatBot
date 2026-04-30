@@ -543,7 +543,8 @@
             </svg>`
 
             const iconContainer = document.createElement("div");
-            iconContainer.innerHTML = data?.launcherIcon?.svgElement || defaultLauncherIcon;
+            // Keep launcher icon consistent for all embeds: always use default icon.
+            iconContainer.innerHTML = defaultLauncherIcon;
             buttonElement.appendChild(iconContainer);
 
             if (data.customKey || chatWidgetData.hideBranding || data.whitelabelling?.removeBranding) {

@@ -514,18 +514,19 @@ console.log(permissions.get(), 'permissionspermissions')
 		const resolvedBaseUrl = baseURL || window.location.origin;
 		const encodedBaseUrl = encodeURIComponent(resolvedBaseUrl);
 		const embedUrl = `${QOLDAUAI_WIDGET_URL}/?kbId=${chatBot._id}&embed=true&hide-chat-actions=true&baseUrl=${encodedBaseUrl}`;
-		const launcherScript = `<script id="__qoldauaiSdk__" data-chatbot-id="${chatBot._id}" data-base-url="${resolvedBaseUrl}" src="${QOLDAUAI_WIDGET_URL}/qoldauai-sdk.js"></script>`;
+		const launcherScript = `<script id="__qoldauaiSdk__" data-chatbot-id="${chatBot._id}" data-base-url="${resolvedBaseUrl}" data-widget-url="${QOLDAUAI_WIDGET_URL}" src="${QOLDAUAI_WIDGET_URL}/qoldauai-sdk.js" async></script>`;
 
 		return <VStack spacing={12} alignItems="start" p={2}>
 			<VStack alignItems="start">
 				<Heading fontSize="md">Лаунчері бар чат-бот</Heading>
-				<Text color="gray.500" fontSize="sm">Лаунчер белгішесі сайттың бұрышында көрінеді. Оны басқанда толық чат интерфейсі ашылады.</Text>
+				<Text color="gray.500" fontSize="sm">Лаунчер белгішесі сайттың бұрышында көрінеді. Оны басқанда толық чат интерфейсі ашылады. Кодты сайттағы <code>&lt;/body&gt;</code> алдында қойыңыз.</Text>
 				<Box className={styles.codeBlock}>
 					<span style={{ color: '#808080' }}>&lt;<span style={{ color: '#ed6a43' }}>script</span>
 						<span style={{ color: '#0086b3' }}> id</span>=<span style={{ color: '#183691' }}>"__qoldauaiSdk__"</span><span style={{ color: '#0086b3', paddingLeft: '4px' }}> data-chatbot-id</span>=<span style={{ color: '#183691' }}>"{chatBot._id}"</span>
 						<span style={{ color: '#0086b3', paddingLeft: '4px' }}> data-base-url</span>=<span style={{ color: '#183691' }}>"{resolvedBaseUrl}"</span>
+						<span style={{ color: '#0086b3', paddingLeft: '4px' }}> data-widget-url</span>=<span style={{ color: '#183691' }}>"{QOLDAUAI_WIDGET_URL}"</span>
 						<br></br>
-						<span style={{ color: '#0086b3', paddingLeft: '20px' }}> src</span>=<span style={{ color: '#183691' }}>"{QOLDAUAI_WIDGET_URL}/qoldauai-sdk.js"</span>
+						<span style={{ color: '#0086b3', paddingLeft: '20px' }}> src</span>=<span style={{ color: '#183691' }}>"{QOLDAUAI_WIDGET_URL}/qoldauai-sdk.js"</span><span style={{ color: '#0086b3', paddingLeft: '4px' }}> async</span>
 						&gt;</span>
 					<br></br>
 					<span style={{ color: '#808080' }}>&lt;/<span style={{ color: '#ed6a43' }}>script</span>&gt;</span>
