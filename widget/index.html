@@ -1,3 +1,4 @@
+
 <html lang="en">
 
 <head>
@@ -19,7 +20,7 @@
             <div class="chat-header">
                 <div class="chat-header-top">
                     <div class="chat-tabs" id="chat-tabs">
-                        <button id="tab-ai-assistant">AI assistant</button>
+                        <button id="tab-ai-assistant">AI assistant</button>image.png
                         <button id="tab-offline-msg">Offline message</button>
                         <div class="tabs-active" id="tabs-active"></div>
                     </div>
@@ -709,16 +710,16 @@
             }
 
             document.getElementById('chat-sample-messages').addEventListener('click', (e) => {
-                const target = e.target;
-                if (!target.classList || !target.classList.contains('chat-sample-message')) return;
+                const target = e.target && e.target.closest && e.target.closest('.chat-sample-message');
+                if (!target) return;
                 if (target.getAttribute('data-open-offline') === '1') {
                     const wrap = document.getElementById('chat-wrap');
-                    if (wrap && wrap.classList.contains('has-offline-message')) {
-                        const offlineTab = document.getElementById('tab-offline-msg');
-                        if (offlineTab) {
-                            offlineTab.click();
-                            return;
-                        }
+                    const offlineTab = document.getElementById('tab-offline-msg');
+                    if (wrap && offlineTab) {
+                        /* Form works even if owner never enabled "offlineMessage" in DB — chip is explicitly for contact. */
+                        wrap.classList.add('has-offline-message');
+                        requestAnimationFrame(() => offlineTab.click());
+                        return;
                     }
                 }
                 const message = target.getAttribute('data-message') || target.innerText;
