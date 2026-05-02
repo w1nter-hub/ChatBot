@@ -220,6 +220,62 @@
         const defaultWelcomeMessage = 'Hello! How can I assist you today?';
         const submitBtnSubmittingText = 'Жіберілуде...';
 
+        /** DB may still store old English strings; replace known legacy values so UI stays Kazakh. */
+        function applyKzOfflineFormFallbacks(raw) {
+            if (!raw || typeof raw !== 'object') return raw;
+            const kz = {
+                emailFieldLabel: 'Электрондық пошта',
+                emailFieldPlaceholder: 'Пошта мекенжайыңызды енгізіңіз',
+                msgFieldLabel: 'Хабарлама',
+                msgFieldPlaceholder: 'Хабарламаңызды жазыңыз',
+                formSubmitBtnLabel: 'Жіберу',
+                formSubmitBtnSubmittingText: 'Жіберілуде...',
+                formSubmitSuccessMsg: 'Хабарламаңыз сәтті жіберілді!',
+                formSubmitErrorMsg: 'Қате орын алды, әрекетті қайталаңыз',
+                formSendAgainBtnLabel: 'Қайта жіберу',
+                formTryAgainBtnLabel: 'Қайта көру',
+                requiredFieldMsg: 'Бұл өрісті толтыру қажет',
+                invalidEmailMsg: 'Дұрыс электрондық пошта енгізіңіз',
+                offlineMsgHeading: 'Офлайн хабарлама',
+                offlineMsgDescription: 'Төмендегі форманы толтырыңыз, біз сізге мүмкіндігінше тез жауап береміз.',
+            };
+            const enExact = {
+                emailFieldLabel: ['email'],
+                emailFieldPlaceholder: ['enter your email'],
+                msgFieldLabel: ['message'],
+                msgFieldPlaceholder: ['enter your message'],
+                formSubmitBtnLabel: ['submit'],
+                formSubmitBtnSubmittingText: ['submitting...'],
+                formSubmitSuccessMsg: ['your message sent successfully!'],
+                formSubmitErrorMsg: ['oops! something went wrong'],
+                formSendAgainBtnLabel: ['send again'],
+                formTryAgainBtnLabel: ['try again'],
+                requiredFieldMsg: ['this field is required'],
+                invalidEmailMsg: ['please enter a valid email'],
+                offlineMsgHeading: ['offline message'],
+            };
+            const out = { ...raw };
+            for (const key of Object.keys(kz)) {
+                const cur = out[key];
+                if (cur === undefined || cur === null || String(cur).trim() === '') {
+                    out[key] = kz[key];
+                    continue;
+                }
+                const s = String(cur).trim();
+                const low = s.toLowerCase();
+                if (low === String(kz[key]).toLowerCase()) continue;
+                const allow = enExact[key];
+                if (allow && allow.includes(low)) {
+                    out[key] = kz[key];
+                }
+            }
+            const desc = out.offlineMsgDescription;
+            if (typeof desc === 'string' && /please fill out the form/i.test(desc) && !/төмендегі/i.test(desc)) {
+                out.offlineMsgDescription = kz.offlineMsgDescription;
+            }
+            return out;
+        }
+
 
         let sessionId = '';
 
@@ -494,7 +550,7 @@
             if (!knowledgebaseId) {
                 knowledgebaseId = data.id;
             }
-            const chatWidgetData = data.chatWidgeData;
+            const chatWidgetData = applyKzOfflineFormFallbacks(data.chatWidgeData);
             showReadMore = chatWidgetData.showReadMore;
             collectEmail = chatWidgetData.collectEmail;
 

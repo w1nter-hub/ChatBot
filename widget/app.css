@@ -973,8 +973,23 @@ a.chat-source-btn {
     border-radius: 16px;
 }
 
+/* Avoid tab pill / row overlapping the offline title text below */
+.chat-wrap-offline .chat-tabs {
+    margin-top: 0;
+}
+
 .has-offline-message .chat-tabs {
    display: inline-block;
+}
+
+.offline-message-header {
+    position: relative;
+    z-index: 3;
+}
+
+.offline-message-header p {
+    position: relative;
+    z-index: 3;
 }
 
 .tabs-active {
