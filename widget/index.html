@@ -20,8 +20,8 @@
             <div class="chat-header">
                 <div class="chat-header-top">
                     <div class="chat-tabs" id="chat-tabs">
-                        <button id="tab-ai-assistant">AI assistant</button>image.png
-                        <button id="tab-offline-msg">Offline message</button>
+                        <button id="tab-ai-assistant">AI көмекші</button>
+                        <button id="tab-offline-msg">Офлайн хабарлама</button>
                         <div class="tabs-active" id="tabs-active"></div>
                     </div>
                     <div class="chat-actions" id="chat-actions">
@@ -85,10 +85,9 @@
                 </div>
                 <div class="offline-message-header">
                     <h2 id="offline-message-heading">
-                        Offline message
+                        Офлайн хабарлама
                     </h2>
-                    <p id="offline-message-description">Please fill out the form below and we will get back to you as
-                        soon as possible.</p>
+                    <p id="offline-message-description">Төмендегі форманы толтырыңыз, біз сізге мүмкіндігінше тез жауап береміз.</p>
                 </div>
 
             </div>
@@ -96,35 +95,35 @@
             </div>
             <div id="offline-message" class="offline-message">
                 <div class="form-group">
-                    <label for="offline-message-name"><span id="label-offline-message-name">Name</span> <span
+                    <label for="offline-message-name"><span id="label-offline-message-name">Аты-жөні</span> <span
                             class="form-required">*</span></label>
-                    <input type="text" class="form-control" id="offline-message-name" placeholder="Enter your name">
+                    <input type="text" class="form-control" id="offline-message-name" placeholder="Аты-жөніңізді енгізіңіз">
                     <!--Error message-->
-                    <div class="invalid-feedback required-field" id="invalid-feedback-name">This field is required</div>
+                    <div class="invalid-feedback required-field" id="invalid-feedback-name">Бұл өрісті толтыру қажет</div>
 
                 </div>
                 <div class="form-group">
-                    <label for="offline-message-email"><span id="label-offline-message-email">Email</span> <span
+                    <label for="offline-message-email"><span id="label-offline-message-email">Электрондық пошта</span> <span
                             class="form-required">*</span></label>
-                    <input type="text" class="form-control" id="offline-message-email" placeholder="Enter your email">
+                    <input type="text" class="form-control" id="offline-message-email" placeholder="Пошта мекенжайыңызды енгізіңіз">
                     <!--Error message-->
-                    <div class="invalid-feedback required-field" id="invalid-feedback-email">This field is required
+                    <div class="invalid-feedback required-field" id="invalid-feedback-email">Бұл өрісті толтыру қажет
                     </div>
-                    <div class="invalid-feedback" id="invalid-feedback-email-invalid">Please enter a valid email</div>
+                    <div class="invalid-feedback" id="invalid-feedback-email-invalid">Дұрыс электрондық пошта енгізіңіз</div>
 
                 </div>
                 <div class="form-group">
-                    <label for="offline-message-message"><span id="label-offline-message-message">Message</span> <span
+                    <label for="offline-message-message"><span id="label-offline-message-message">Хабарлама</span> <span
                             class="form-required">*</span></label>
                     <textarea class="form-control" rows="4" id="offline-message-message"
-                        placeholder="Enter your message"></textarea>
+                        placeholder="Хабарламаңызды жазыңыз"></textarea>
                     <!--Error message-->
-                    <div class="invalid-feedback required-field" id="invalid-feedback-message">This field is required
+                    <div class="invalid-feedback required-field" id="invalid-feedback-message">Бұл өрісті толтыру қажет
                     </div>
 
                 </div>
-                <button class="btn btn-primary" loadingText="Submitting..." id="offline-message-submit"
-                    type="button">Submit</button>
+                <button class="btn btn-primary" loadingText="Жіберілуде..." id="offline-message-submit"
+                    type="button">Жіберу</button>
                 <div class="message-feedback message-feedback-success" id="message-success">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -133,9 +132,9 @@
                         </path>
                     </svg>
 
-                    <span id="message-success-text">Your message sent successfully!</span>
+                    <span id="message-success-text">Хабарламаңыз сәтті жіберілді!</span>
 
-                    <button class="btn btn-primary" id="offline-message-success-close" type="button">Send Again</button>
+                    <button class="btn btn-primary" id="offline-message-success-close" type="button">Қайта жіберу</button>
                 </div>
                 <div class="message-feedback message-feedback-error" id="message-error">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -144,9 +143,9 @@
                             stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
 
-                    <span id="message-error-text">Oops! Something went wrong</span>
+                    <span id="message-error-text">Қате орын алды, әрекетті қайталаңыз</span>
 
-                    <button class="btn btn-primary" id="offline-message-error-close" type="button">Try Again</button>
+                    <button class="btn btn-primary" id="offline-message-error-close" type="button">Қайта көру</button>
                 </div>
             </div>
             <div class="chat-options">
@@ -219,7 +218,7 @@
         const chatWithBotButton = document.getElementById('chat-with-bot');
 
         const defaultWelcomeMessage = 'Hello! How can I assist you today?';
-        const submitBtnSubmittingText = 'Submitting...';
+        const submitBtnSubmittingText = 'Жіберілуде...';
 
 
         let sessionId = '';
