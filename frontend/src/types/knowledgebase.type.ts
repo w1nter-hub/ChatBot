@@ -84,7 +84,9 @@ export interface ChatBotCustomizeData {
     questionExamples: {
         question: string;
         label: string;
-    },
+        /** If true, clicking this chip opens the offline / contact form instead of sending text to the bot. */
+        openOffline?: boolean;
+    }[],
     welcomeMessages: string[]
     launcherIcon: launcherIcon;
     chatInputPlaceholderText: string;

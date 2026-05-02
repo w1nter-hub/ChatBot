@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -19,6 +20,7 @@ export class OfflineMessageController {
   constructor(private readonly offlineMsgService: OfflineMsgService) {}
 
   @Public()
+  @HttpCode(HttpStatus.CREATED)
   @Post('/')
   async addOfflineMsg(@Body() data: NewOfflineMsgDTO) {
     return this.offlineMsgService.createOfflineMessage(data);

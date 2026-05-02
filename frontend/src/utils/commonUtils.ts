@@ -81,7 +81,7 @@ export const chatWidgetDefaultValues = {
 	fontColor: "#FFF",
 	borderRadius: "12px",
 	placement: "right",
-	offlineMessage: false,
+	offlineMessage: true,
 	showReadMore: true,
   showAsPopup: false,
   popupDelay: 3000,
@@ -90,7 +90,7 @@ export const chatWidgetDefaultValues = {
   adminEmail: '',
   collectEmailText: 'Email мекенжайыңыз қандай?',
   questionExamples: [
-    {question: 'Сізбен қалай байланыса аламын?', label: 'Байланыс'},
+    { question: 'Сізбен қалай байланыса аламын?', label: 'Байланыс', openOffline: true },
   ],
   welcomeMessages: [
     'Сәлем! Сізге қалай көмектесе аламын?'

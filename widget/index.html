@@ -697,15 +697,32 @@
                     sampleMessage.classList.add('chat-sample-message');
                     sampleMessage.setAttribute('data-message', message.question);
                     sampleMessage.innerText = message.label;
+                    const openOffline =
+                        message.openOffline === true ||
+                        message.label === 'Байланыс' ||
+                        (chatWidgetData.offlineMsgTabHeader && message.label === chatWidgetData.offlineMsgTabHeader);
+                    if (openOffline) {
+                        sampleMessage.setAttribute('data-open-offline', '1');
+                    }
                     sampleMessages.appendChild(sampleMessage);
                 });
             }
 
             document.getElementById('chat-sample-messages').addEventListener('click', (e) => {
-                if (e.target.classList.contains('chat-sample-message')) {
-                    const message = e.target.getAttribute('data-message') || e.target.innerText;
-                    addMessageToChat(message);
+                const target = e.target;
+                if (!target.classList || !target.classList.contains('chat-sample-message')) return;
+                if (target.getAttribute('data-open-offline') === '1') {
+                    const wrap = document.getElementById('chat-wrap');
+                    if (wrap && wrap.classList.contains('has-offline-message')) {
+                        const offlineTab = document.getElementById('tab-offline-msg');
+                        if (offlineTab) {
+                            offlineTab.click();
+                            return;
+                        }
+                    }
                 }
+                const message = target.getAttribute('data-message') || target.innerText;
+                addMessageToChat(message);
             });
 
 
@@ -1313,13 +1330,14 @@
                                 "knowledgebaseId": knowledgebaseId,
                                 "message": message,
                                 "sessionId": sessionId,
+                                "url": origin || (typeof window !== 'undefined' ? window.location.href : ''),
                             }), // body data type must match "Content-Type" header
                         }
                     );
 
                     const $offlineMessage = document.getElementById('offline-message');
 
-                    if (response.status === 201) {
+                    if (response.ok) {
                         const result = await response.text()
                         $name.value = '';
                         $email.value = '';
