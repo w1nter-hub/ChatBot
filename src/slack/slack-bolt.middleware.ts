@@ -93,19 +93,19 @@ export class SlackBoltMiddleware implements NestMiddleware {
         installPathOptions: {
           beforeRedirection: async (req, res) => {
             // console.log('beforeRedirection');
-            const webwhizbotId = req.url.split('webwhizKbId=')[1];
-            this.logger.log(`webwhizKbId: ${webwhizbotId}`);
+            const qoldauBotId = req.url.split('qoldauKbId=')[1];
+            this.logger.log(`qoldauKbId: ${qoldauBotId}`);
             if (
-              webwhizbotId &&
-              (await this.isValidKnowledgebase(webwhizbotId))
+              qoldauBotId &&
+              (await this.isValidKnowledgebase(qoldauBotId))
             ) {
-              // Set webwhizKbId as cookie with expiry of 5 minutes
+              // Set qoldauKbId as cookie with expiry of 5 minutes
               const d = new Date();
               d.setTime(d.getTime() + 5 * 60 * 1000); // 5 minutes in milliseconds
               const expires = 'expires=' + d.toUTCString();
               res.setHeader(
                 'Set-Cookie',
-                `webwhizKbId=${webwhizbotId}; ${expires}; path=/;`,
+                `qoldauKbId=${qoldauBotId}; ${expires}; path=/;`,
               );
               return true;
             } else {
@@ -118,19 +118,19 @@ export class SlackBoltMiddleware implements NestMiddleware {
             // console.log('beforeInstallation');
             const cookie = req.headers.cookie;
             // console.log('cookie before removal', cookie);
-            // remove webwhizKbId from cookie
+            // remove qoldauKbId from cookie
             res.setHeader(
               'Set-Cookie',
-              'webwhizKbId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;',
+              'qoldauKbId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;',
             );
-            const regex = /webwhizKbId=([a-zA-Z0-9]+)/; // Regular expression to match the botid value
+            const regex = /qoldauKbId=([a-zA-Z0-9]+)/; // Regular expression to match the botid value
             const match = cookie.match(regex);
-            let webwhizbotId;
+            let qoldauBotId;
             if (match) {
-              webwhizbotId = match[1];
+              qoldauBotId = match[1];
             }
-            if (webwhizbotId) {
-              options.metadata = webwhizbotId;
+            if (qoldauBotId) {
+              options.metadata = qoldauBotId;
               return true;
             }
             return false;
@@ -169,12 +169,12 @@ export class SlackBoltMiddleware implements NestMiddleware {
     runner.setup(app);
     this.appRunner = runner;
   }
-  async isValidKnowledgebase(webwhizbotId: string) {
+  async isValidKnowledgebase(kbIdStr: string) {
     let kbId;
     try {
-      kbId = new ObjectId(webwhizbotId);
+      kbId = new ObjectId(kbIdStr);
     } catch (e) {
-      this.logger.error('Invalid knowledgebase id: ' + webwhizbotId);
+      this.logger.error('Invalid knowledgebase id: ' + kbIdStr);
       return false;
     }
     const kbData = await this.kbDbService.getKnowledgebaseById(kbId);

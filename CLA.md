@@ -1,6 +1,6 @@
 # Contributor License Agreement
-Thank you for your interest in contributing to WebWhiz project.
-This license is for your protection as a Contributor as well as the protection of the WebWhiz and its users; it does not change your rights to use your own Contributions for any other purpose.
+Thank you for your interest in contributing to Qoldau AI project.
+This license is for your protection as a Contributor as well as the protection of the Qoldau AI and its users; it does not change your rights to use your own Contributions for any other purpose.
 
 ### A Human Friendly Summary of our CLA
 This is a human friendly summary of (and not a substitute for) the full CLA linked below. This section highlights only some of key terms of the CLA. It has no legal value and you should carefully review all the terms of the actual CLA.

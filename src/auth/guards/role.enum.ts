@@ -11,7 +11,7 @@ import { Role } from '../types/role.enum';
 export const ROLES_KEY = 'roles';
 export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
 
-export const ADMINS = ['hi@webwhiz.ai'];
+export const ADMINS = ['hi@qoldau.ai'];
 
 @Injectable()
 export class RolesGuard implements CanActivate {

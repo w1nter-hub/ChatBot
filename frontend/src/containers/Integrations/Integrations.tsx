@@ -41,7 +41,7 @@ const Integrations = ({ chatbotId }: IntegrationsProps) => {
                             colorScheme="blue"
                             mt={4}
                             onClick={() => {
-                                window.open(`${baseURL}/slack/install?webwhizKbId=${chatbotId}`, '_blank');
+                                window.open(`${baseURL}/slack/install?qoldauKbId=${chatbotId}`, '_blank');
                             }}
                         >
                             Add to Slack

@@ -1,10 +1,10 @@
-# Contributing to WebWhiz.ai
+# Contributing to Qoldau AI
 
-Want to contribute to WebWhiz? Follow along to setup a local isntance of webwhiz and make changes
+Want to contribute to Qoldau AI? Follow along to setup a local instance of qoldau-ai and make changes
 
 # Self Hosting
 
-There are two ways to run Self Host / run webwhiz
+There are two ways to run Self Host / run qoldau-ai
 
 1. Docker - Easy
 2. Manual Setup - Involved (but provides more flexibility)
@@ -15,24 +15,24 @@ Prerequisites
 
 - Docker & docker-compose
 
-Running Webwhiz with docker
+Running Qoldau AI with docker
 
 1. Clone the repo
 2. Edit the `.env.docker` file present in the root of the repo and add your `OPENAI_KEY` & `OPENAI_KEY_2`
 3. Use docker-compose to start the stack
 
 ```bash
-# Bring up webwhiz
-# Once the building is done and webwhiz starts the UI will be available at
+# Bring up qoldau-ai
+# Once the building is done and qoldau-ai starts the UI will be available at
 # http://localhost:3030, backend is available at http://localhost:3000
 # widget is available at http://localhost:3031
 # To exit Press Ctrl-C
 docker-compose up
 
-# Alternatively Run webwhiz as a daemon
+# Alternatively Run qoldau-ai as a daemon
 docker-compose up -d
 
-# Stop Webwhiz
+# Stop Qoldau AI
 docker-compose down
 
 # Force rebuild all containers (required only if some change is not picked up)
@@ -41,22 +41,22 @@ sudo docker-compose up --build --force-recreate
 
 ## Manual
 
-WebWhiz is designed to be used as a production grade Chatbot that can be scaled up or down to handle any volume of data.
+Qoldau AI is designed to be used as a production grade Chatbot that can be scaled up or down to handle any volume of data.
 
-WebWhiz consists of mainly 3 components
+Qoldau AI consists of mainly 3 components
 
-1. The API server - This is the main webwhiz backend web server using NestJS
+1. The API server - This is the main qoldau-ai backend web server using NestJS
 2. JS Celery Worker - Handles crawling, embeddings generation
 3. Python Celery Worker - Container Cosine similarity calculator & HTML / PDF content extractor
 
-For Database and Caching Webwhiz uses
+For Database and Caching Qoldau AI uses
 
 - MongoDB
 - Redis
 
 The backend server uses third part services (including OpenAI) for powering the chatbot, as well as for error monitoring etc. Only OpenAI key is mandatory and you can ignore the others if you prefer to.
 
-> NOTE: WebWhiz keeps embeddings in Redis to improve the performance of chatbot responses. For most organisations the chatbots created would be conatins data for a few hundren or thousands of pages, and Redis should work well while providing better performance. If you would like to use a dedicated vector database for searching relavant chunks please reach out to us.
+> NOTE: Qoldau AI keeps embeddings in Redis to improve the performance of chatbot responses. For most organisations the chatbots created would be conatins data for a few hundren or thousands of pages, and Redis should work well while providing better performance. If you would like to use a dedicated vector database for searching relavant chunks please reach out to us.
 
 ## Prerequisites
 

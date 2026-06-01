@@ -20,8 +20,7 @@ const FALLBACK_DEMO_CHATBOT_IDS = [
 export function getDemoChatbotId(index: number): string {
 	return DEMO_CHATBOT_IDS[index] || FALLBACK_DEMO_CHATBOT_IDS[index] || FALLBACK_DEMO_CHATBOT_IDS[0];
 }
-/** Публичный URL статики виджета (без слэша в соңы). Ескі .env үшін REACT_APP_WEBWHIZ_WIDGET_URL қолданылады. */
+/** Публичный URL статики виджета (без слэша в соңы). */
 export const QOLDAUAI_WIDGET_URL =
 	process.env.REACT_APP_QOLDAUAI_WIDGET_URL ||
-	process.env.REACT_APP_WEBWHIZ_WIDGET_URL ||
 	'http://localhost:3031';

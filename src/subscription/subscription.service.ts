@@ -67,7 +67,7 @@ export class SubscriptionService {
 
   async orderCreatedHandler(payload: LemonSqueezyWebhookOrderCreatedEvent) {
     const productName = payload.data.attributes.first_order_item.product_name;
-    if (productName !== 'WebWhiz LTD' && productName !== 'QoldauAI') {
+    if (productName !== 'Qoldau AI' && productName !== 'QoldauAI') {
       return;
     }
 
