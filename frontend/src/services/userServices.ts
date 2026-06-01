@@ -2,7 +2,6 @@ import axios, { AxiosResponse } from 'axios';
 import { baseURL } from '../config';
 import { User } from './appConfig';
 
-
 export async function getUserProfile(): Promise<AxiosResponse<User>> {
 	return await axios({
 		baseURL: baseURL,
@@ -23,8 +22,6 @@ export async function setOpenAIKey(key: string, useOwnKey: boolean): Promise<Axi
 	});
 }
 
-
-
 export interface InviteUserParams {	
 	id?: string
 	email: string;
@@ -43,7 +40,6 @@ export const inviteUser = async (kb_id: string, { email, role }: InviteUserParam
 	});
 };
 
-
 export const deleteUser = async (kb_id: string, user_id: string) => {
 	return await axios({
 		baseURL: baseURL,
@@ -51,4 +47,3 @@ export const deleteUser = async (kb_id: string, user_id: string) => {
 		url: `knowledgebase/${kb_id}/delete_user/${user_id}`,
 	});
 };
-

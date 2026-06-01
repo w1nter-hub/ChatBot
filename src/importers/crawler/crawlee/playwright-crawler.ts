@@ -25,7 +25,7 @@ export class CrawleePlaywrightCrawler implements CrawleeCrawler {
   }
 
   public async crawl(cb: CrawlPageDataCb) {
-    // Create crawler
+    
     this.crawler = new PlaywrightCrawler({
       maxConcurrency: 5,
       maxRequestsPerCrawl: this.config?.maxPages,
@@ -34,7 +34,7 @@ export class CrawleePlaywrightCrawler implements CrawleeCrawler {
         const title = await page.title();
         const content = await page.content();
 
-        // Call cb with page data
+        
         await cb({
           url,
           title,
@@ -48,12 +48,12 @@ export class CrawleePlaywrightCrawler implements CrawleeCrawler {
       },
     });
 
-    // Run crawler
+    
     await this.crawler.run(this.config?.urls);
 
     this.stats = convertCrawleeStats(this.crawler.stats);
 
-    // Cleanup
+    
     await this.crawler.teardown();
   }
 }

@@ -38,9 +38,8 @@ export class KnowledgebaseController {
     private readonly dataStoreService: DataStoreService,
   ) {}
 
-  /**
-   * Set Custom Keys for Knowledgebase
-   */
+  
+
   @Put('/custom_keys')
   async setUserCustomKeys(
     @Req() req: RequestWithUser,
@@ -60,9 +59,8 @@ export class KnowledgebaseController {
     return this.kbService.getChatWidgetDataForDomain(domain);
   }
 
-  /**
-   * Get Knowleldgebase Detail by ID
-   */
+  
+
   @Get('/:id')
   async getKnowledgebaseData(
     @Req() req: RequestWithUser,
@@ -72,9 +70,8 @@ export class KnowledgebaseController {
     return this.kbService.getKnowledgeBaseDetail(user, id);
   }
 
-  /**
-   *  Delete knowledgebase
-   */
+  
+
   @Delete('/:id')
   @HttpCode(204)
   async deleteKnowledgebase(
@@ -85,18 +82,16 @@ export class KnowledgebaseController {
     return this.kbService.deleteKnowledgebaseForUser(user, id);
   }
 
-  /**
-   * Get Chat widget data for KB (Public)
-   */
+  
+
   @Public()
   @Get('/:id/chat_widget_data')
   async getChatWidgetData(@Param('id') id: string) {
     return this.kbService.getKnowledgebaseChatWidgetData(id);
   }
 
-  /**
-   * Update chat widget data
-   */
+  
+
   @Put('/:id/chat_widget_data')
   async setChatWidgetData(
     @Req() req: RequestWithUser,
@@ -107,9 +102,8 @@ export class KnowledgebaseController {
     return this.kbService.setKnowledgebaseChatWidgeData(user, id, data);
   }
 
-  /**
-   * Set Admin email for knowledgebase
-   */
+  
+
   @Put('/:id/admin_email')
   async setAdminEmail(
     @Req() req: RequestWithUser,
@@ -120,9 +114,8 @@ export class KnowledgebaseController {
     return this.kbService.setKnowledgebaseAdminEmail(user, id, data.email);
   }
 
-  /**
-   * Set OpenAI model to use
-   */
+  
+
   @Put('/:id/model')
   async setModelName(
     @Req() req: RequestWithUser,
@@ -133,9 +126,8 @@ export class KnowledgebaseController {
     return this.kbService.setModelName(user, id, data.model);
   }
 
-  /**
-   * Update name of the chatbot
-   */
+  
+
   @Put('/:id/name')
   async setChatbotName(
     @Req() req: RequestWithUser,
@@ -146,9 +138,8 @@ export class KnowledgebaseController {
     return this.kbService.setKnowledgebaseName(user, id, data.name);
   }
 
-  /**
-   * Update website data for KB
-   */
+  
+
   @Put('/:id/website_data')
   async updateWebsiteData(
     @Req() req: RequestWithUser,
@@ -159,9 +150,8 @@ export class KnowledgebaseController {
     return this.kbService.updateKnowledgebaseWebsiteData(user, id, data);
   }
 
-  /**
-   * Update website data for KB
-   */
+  
+
   @Put('/:id/default_answer')
   async setDefaultAnswer(
     @Req() req: RequestWithUser,
@@ -176,9 +166,8 @@ export class KnowledgebaseController {
     );
   }
 
-  /**
-   * Set custom domains for kb
-   */
+  
+
   @Put('/:id/custom_domain')
   async setCustomDomains(
     @Req() req: RequestWithUser,
@@ -189,9 +178,8 @@ export class KnowledgebaseController {
     return this.kbService.setCustomDomain(user, id, data.domain);
   }
 
-  /**
-   * Update Prompt for knowledge base
-   */
+  
+
   @Put('/:id/prompt')
   async setPromptId(
     @Req() req: RequestWithUser,
@@ -202,9 +190,8 @@ export class KnowledgebaseController {
     return this.kbService.setKnowledgebasePrompt(user, id, data.prompt);
   }
 
-  /**
-   * Set KB as demo
-   */
+  
+
   @Put('/:id/set_demo')
   @Roles(Role.Admin)
   async setKnowledgebaseAsDemo(
@@ -215,13 +202,10 @@ export class KnowledgebaseController {
     return this.kbService.setKnowledgebaseAsDemo(user, id);
   }
 
-  /*********************************************************
-   * CUSTOM DATA APIS
-   *********************************************************/
+  
 
-  /**
-   * Update Custom Data
-   */
+  
+
   @Get('/:id/datastore/:dId')
   async getDataStoreItem(
     @Req() req: RequestWithUser,
@@ -231,9 +215,8 @@ export class KnowledgebaseController {
     const { user } = req;
     return this.dataStoreService.getDataStoreItemDetail(user, id, dId);
   }
-  /**
-   * Update Custom Data
-   */
+  
+
   @Put('/:id/datastore/:dId')
   async updateDataStoreItem(
     @Req() req: RequestWithUser,
@@ -250,9 +233,8 @@ export class KnowledgebaseController {
     );
   }
 
-  /**
-   * Delete custom data from data store
-   */
+  
+
   @Delete('/:id/datastore/:dId')
   async deleteDataStoreItem(
     @Req() req: RequestWithUser,
@@ -267,9 +249,8 @@ export class KnowledgebaseController {
     );
   }
 
-  /**
-   * Add new custom data data store item
-   */
+  
+
   @Post('/:id/datastore/custom_data')
   async addCustomData(
     @Req() req: RequestWithUser,
@@ -280,9 +261,8 @@ export class KnowledgebaseController {
     return this.dataStoreService.addCustomDataToKnowledgebase(user, id, data);
   }
 
-  /**
-   * Get custom data data store items
-   */
+  
+
   @Get('/:id/datastore')
   async listCustomData(
     @Req() req: RequestWithUser,

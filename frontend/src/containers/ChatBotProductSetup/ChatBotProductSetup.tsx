@@ -38,7 +38,6 @@ import {
 	useToast,
 } from "@chakra-ui/react";
 
-
 import {
 	Modal,
 	ModalOverlay,
@@ -102,7 +101,7 @@ interface ChatBotProductSetupProps {
 function validateWebsite(value: string) {
 	let error;
 	if (value &&
-		!/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,10}\b([-a-zA-Z0-9@:%_\+.~#()?&//=]*)/gim.test(
+		!/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,10}\b([-a-zA-Z0-9@:%_\+.~#()?&
 			value
 		)
 	) {
@@ -165,20 +164,20 @@ export const ChatBotProductSetup = ({
 			formValues.websiteUrl = websiteUrl;
 
 			let targetPaths = (target || '').split(',')
-			// filter out empty paths and trim white spaces
+			
 			targetPaths = targetPaths.filter(path => !!path).map(path => path.trim());
 
-			// targetPaths = targetPaths.map((path) => {
-			// 	return (website.endsWith('/') ? website.slice(0, -1) : website) + path + '/**/*';
-			// });
+			
+			
+			
 
 			let excludePaths = (exclude || '').split(',')
-			// filter out empty paths and trim white spaces
+			
 			excludePaths = excludePaths.filter(path => !!path).map(path => path.trim())
 
-			// excludePaths = excludePaths.map((path) => {
-			// 	return (website.endsWith('/') ? website.slice(0, -1) : website) + path + '!/**/*';
-			// });
+			
+			
+			
 			let chatbotName = '';
 			if (websiteUrl) {
 				chatbotName = getDomainFromUrl(websiteUrl);
@@ -202,10 +201,10 @@ export const ChatBotProductSetup = ({
 				customDropzoneRef.current.clearFiles();
 			}
 
-			// formValues.targetPagesBar = [...includedTarget, ...excludedTarget];
-			// if((!formValues.targetPagesBar || !formValues.targetPagesBar.length) && target) {
-			// 	formValues.targetPagesBar = [{ action: "include", path: target }]
-			// }
+			
+			
+			
+			
 
 			const hasWebsiteDataChanged = (defaultWebsite !== websiteUrl ||
 				defaultIncludedPaths !== targetPaths.join(',') ||
@@ -219,7 +218,6 @@ export const ChatBotProductSetup = ({
 		},
 		[defaultWebsite, defaultIncludedPaths, defaultExcludedPaths, onPrimaryBtnClick, onSecondaryBtnClick]
 	);
-
 
 	const handlePageClick = React.useCallback((page) => {
 		onCrawlDataPaginationClick(page+1);
@@ -267,24 +265,24 @@ export const ChatBotProductSetup = ({
 		}
 	}, [localDocsData, toast]);
 
-	// TODO: Add proper validation
-	// const validationSchema = Yup.object().shape(
-	// 	{
-	// 		files: Yup.array().when("websiteUrl", {
-	// 			is: "",
-	// 			then: Yup.array()
-	// 				.min(1, "Pick at least 1 item")
-	// 				.of(Yup.number().required("This field is required.")),
-	// 			otherwise: Yup.array()
-	// 		}),
-	// 		websiteUrl: Yup.string().when("files", {
-	// 			is: files => files.length === 0,
-	// 			then: Yup.string().required("This field is required."),
-	// 			otherwise: Yup.string()
-	// 		})
-	// 	},
-	// 	[["files", "websiteUrl"]]
-	// );
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	const getCrauledPaths = React.useCallback(() => {
 		if (isSubmitting) {
@@ -307,34 +305,12 @@ export const ChatBotProductSetup = ({
 			const crawledPercentage = (crauledData?.stats?.crawledPages * 100) / totalPages;
 			const failedPercentage = (crauledData?.stats?.failedPages * 100) / totalPages;
 			return <>
-				{/* <Alert status='info' mb="10" fontSize='sm' borderRadius="sm">
-					<Text as="span" color="blue.500" mt="2px" mr="6px">
-						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M12 16V12M12 8H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-						</svg>
-					</Text>
+				{
 
-					Verify that all the required pages are crawled. If not, you can adjust the target paths and try again
-				</Alert> */}
-				{/* <StatGroup mb={10}>
-					<Stat>
-						<StatLabel>Crawled pages</StatLabel>
-						<StatNumber>{crauledData?.stats?.crawledPages}</StatNumber>
-						<StatHelpText>
-							<StatArrow type='increase' />
-							{crawledPercentage.toFixed(2)}%
-						</StatHelpText>
-					</Stat>
+}
+				{
 
-					<Stat>
-						<StatLabel>Failed pages</StatLabel>
-						<StatNumber>{crauledData?.stats?.failedPages}</StatNumber>
-						<StatHelpText>
-							<StatArrow type='decrease' />
-							{failedPercentage.toFixed(2)}%
-						</StatHelpText>
-					</Stat>
-				</StatGroup> */}
+}
 
 				<Box>
 					<Box position="relative">
@@ -484,7 +460,7 @@ export const ChatBotProductSetup = ({
 						files: defaultFiles,
 					}}
 					onSubmit={async () => { }}
-					// validationSchema={validationSchema}
+					
 				>
 					{({ values, isValid, dirty }) => (
 						<>
@@ -504,17 +480,9 @@ export const ChatBotProductSetup = ({
 											</TabList>
 												<TabPanels>
 													<TabPanel pt="8" px={0}>
-													{/* <Flex w="100%" mb="4" pb="4" borderBottom="1px solid" borderBottomColor="gray.100">
-															<Flex maxW="620px" direction="column">
+													{
 
-															<Heading as="h2" fontSize="lg" mb="2" fontWeight="600" color="gray.800" isTruncated>
-																Website Details
-															</Heading>
-															<Text color="gray.500">
-															
-															</Text>
-															</Flex>
-													</Flex> */}
+}
 														<SectionTitle title="Қолдау білім көзі" description="Сайт URL мен жолдарын енгізіңіз. Жүйе беттерді жинап, қолдау білім базасын құрады." />
 													
 														<HStack alignItems="start" spacing="10" w="100%">
@@ -537,7 +505,7 @@ export const ChatBotProductSetup = ({
 																				{...field}
 																				id="websiteUrl"
 																				isDisabled={disableWebsiteInput}
-																				// required
+																				
 																				placeholder="https://www.paritydeals.com"
 																			/>
 																			{disableWebsiteInput && (<FormHelperText fontSize="smaller" color="gray.400">

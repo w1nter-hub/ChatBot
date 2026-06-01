@@ -41,12 +41,10 @@ export class DataStoreService {
     this.redis.del(cacheKey);
   }
 
-  /*********************************************************
-   * DATA STORE RELATED SERVICE FNS
-   *********************************************************/
+  
 
   async generateChunksAndEmbeddingsForDataStoreItem(dsItem: KbDataStore) {
-    // If already trained or content is empty, then do nothing and return
+    
     if (dsItem.status === DataStoreStatus.TRAINED || !dsItem.content) {
       return;
     }
@@ -54,7 +52,7 @@ export class DataStoreService {
     let dsItemChunks: Chunk[] = [];
 
     if (dsItem.status === DataStoreStatus.CREATED) {
-      // Split content into chunks and add to db
+      
       const chunks = splitTextIntoChunksOnLines(dsItem.content, CHUNK_SIZE);
 
       const ts = new Date();
@@ -71,7 +69,7 @@ export class DataStoreService {
       }));
       const chunkIds = await this.kbDbService.insertChunksBulk(chunksToInsert);
 
-      // Update the data store item as CHUNKED
+      
       await this.kbDbService.updateKbDataStoreItem(dsItem._id, {
         status: DataStoreStatus.CHUNKED,
       });
@@ -84,22 +82,22 @@ export class DataStoreService {
         dsItemChunks.push(chunk);
       }
     } else {
-      // In case the status is not CREATE ie CHUNKED, then chunks were
-      // already created earlier, get those chunks and generate embeddings again
+      
+      
       const dsItemChunksIdDocs =
         await this.kbDbService.getChunksForDataStoreItem(dsItem._id);
       const dsItemChunksIds = dsItemChunksIdDocs.map((d) => d._id);
       dsItemChunks = await this.kbDbService.getChunkByIdBulk(dsItemChunksIds);
     }
 
-    // Get kb info
+    
     const kb = await this.kbDbService.getKnowledgebaseById(
       dsItem.knowledgebaseId,
     );
-    // Get user info for custom keys
+    
     const user = await this.userService.findUserById(kb.owner.toHexString());
 
-    // For each chunk generate embedding
+    
     for (const chunk of dsItemChunks) {
       if (chunk.status === ChunkStatus.EMBEDDING_GENERATED) continue;
       await this.openaiChatbotService.addEmbeddingsForChunk(
@@ -111,7 +109,7 @@ export class DataStoreService {
       console.log(`Added embedding for ${chunk.title}`);
     }
 
-    // Update the data store item as TRAINED and clear embeddings cache
+    
     await Promise.all([
       this.kbDbService.updateKbDataStoreItem(dsItem._id, {
         status: DataStoreStatus.TRAINED,
@@ -120,13 +118,10 @@ export class DataStoreService {
     ]);
   }
 
-  /**
-   * Insert content to data store, create chunks and store embeddings
-   * @param data
-   * @returns
-   */
+  
+
   async insertToDataStoreAndCreateEmbeddings(data: KbDataStore) {
-    // First insert the item to data store
+    
     const dsItem = await this.kbDbService.insertToKbDataStore(data);
 
     await this.generateChunksAndEmbeddingsForDataStoreItem(dsItem);
@@ -134,23 +129,20 @@ export class DataStoreService {
     return dsItem;
   }
 
-  /**
-   * Update data store item and recreate chunks and embeddings
-   * @param id
-   * @param data
-   */
+  
+
   async updateDataStoreContentAndCreateEmbeddings(
     id: ObjectId,
     data: Pick<KbDataStore, 'content' | 'title'>,
   ) {
-    // Get the existing data store ite
+    
     const dsItem = await this.kbDbService.getKbDataStoreItemById(id);
 
-    // Get existing chunks for given data store item (To Remove later)
+    
     const chunks = await this.kbDbService.getChunksForDataStoreItem(id);
     const chunkIds = chunks.map((c) => c._id);
 
-    // Update ds item
+    
     await this.kbDbService.updateKbDataStoreItem(id, {
       ...data,
       status: DataStoreStatus.CREATED,
@@ -161,47 +153,39 @@ export class DataStoreService {
 
     await this.generateChunksAndEmbeddingsForDataStoreItem(dsItem);
 
-    // Now that new chunks are inserted delete old ones and embeddings
+    
     await Promise.all([
       this.kbDbService.deleteEmbeddingsByIdBulk(chunkIds),
       this.kbDbService.deleteChunksByIdBulk(chunkIds),
     ]);
   }
 
-  /**
-   * Delete a data store item and its associated chunks & embeddings
-   * @param id
-   */
+  
+
   async deleteDataStoreItemAndAssociatedEmbeddings(id: ObjectId) {
     const dsItem = await this.kbDbService.getKbDataStoreItemById(id);
 
-    // Get chunks for given data store item
+    
     const chunks = await this.kbDbService.getChunksForDataStoreItem(id);
     const chunkIds = chunks.map((c) => c._id);
 
-    // Delete embeddings for chunks
+    
     await this.kbDbService.deleteEmbeddingsByIdBulk(chunkIds);
 
-    // Delete chunks
+    
     await this.kbDbService.deleteChunksByIdBulk(chunkIds);
 
-    // Delete ds item
+    
     await this.kbDbService.deleteKbDataStoreItem(id);
 
-    // Clear embeddings cache
+    
     await this.clearEmbeddingsCacheForKnowledgebase(dsItem.knowledgebaseId);
   }
 
-  /*********************************************************
-   * CUSTOM TRAINING DATA
-   *********************************************************/
+  
 
-  /**
-   * Add custom data Q & A to knowledgebase
-   * @param user
-   * @param knowledgebaseId
-   * @param data
-   */
+  
+
   async addCustomDataToKnowledgebase(
     user: UserSparse,
     knowledgebaseId: string,
@@ -213,7 +197,7 @@ export class DataStoreService {
 
     const ts = new Date();
 
-    // Insert entry to KbDataStore
+    
     let dsItem: KbDataStore = {
       knowledgebaseId: kbId,
       title: data.q,
@@ -228,12 +212,8 @@ export class DataStoreService {
     return dsItem;
   }
 
-  /**
-   * Get data store item detail
-   * @param user
-   * @param knowledgebaseId
-   * @param dataStoreId
-   */
+  
+
   async getDataStoreItemDetail(
     user: UserSparse,
     knowledgebaseId: string,
@@ -242,7 +222,7 @@ export class DataStoreService {
     const kbId = new ObjectId(knowledgebaseId);
     const dId = new ObjectId(dataStoreId);
 
-    // Validations
+    
     const kb = await this.kbDbService.getKnowledgebaseSparseById(kbId);
     checkUserPermissionForKb(user, kb, [UserPermissions.READ]);
 
@@ -254,12 +234,8 @@ export class DataStoreService {
     return dsItem;
   }
 
-  /**
-   * Get custom chunks in Knowledgebase
-   * @param user
-   * @param knowledgebaseId
-   * @returns
-   */
+  
+
   async listDataStoreItemsInKnowledgebase(
     user: UserSparse,
     knowledgebaseId: string,
@@ -287,7 +263,7 @@ export class DataStoreService {
     const kbId = new ObjectId(knowledgebaseId);
     const dId = new ObjectId(dataStoreId);
 
-    // Validations
+    
     const kb = await this.kbDbService.getKnowledgebaseSparseById(kbId);
     checkUserPermissionForKb(user, kb, [UserPermissions.EDIT]);
     const dsItem = await this.kbDbService.getKbDataStoreItemById(dId);
@@ -307,7 +283,7 @@ export class DataStoreService {
     const kbId = new ObjectId(knowledgebaseId);
     const dId = new ObjectId(dataStoreId);
 
-    // Validations
+    
     const kb = await this.kbDbService.getKnowledgebaseSparseById(kbId);
     checkUserPermissionForKb(user, kb, [UserPermissions.EDIT]);
     const dsItem = await this.kbDbService.getKbDataStoreItemById(dId);

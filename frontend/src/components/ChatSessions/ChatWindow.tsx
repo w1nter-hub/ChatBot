@@ -179,7 +179,7 @@ export const ChatWindow = ({
                 );
             case 'BOT':
             default:
-                // For older messages, type is not set.
+                
                 return (
                     <>
                         <ChatBubble message={message.q || message.msg} type={'user'} />

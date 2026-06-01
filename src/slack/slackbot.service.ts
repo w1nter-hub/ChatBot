@@ -16,7 +16,7 @@ export class SlackBotService {
   }
 
   async botProcessAppMention(event: AppMentionEvent, say: any, client: any) {
-    // TODO: Fix: Bot is not responding to direct messages
+    
     const loadingMsg = await client.chat.postMessage({
       channel: event.channel,
       text: 'QoldauAI ойланып жатыр… ✨',
@@ -27,13 +27,12 @@ export class SlackBotService {
     const teamId = event.team;
     const message = event.text.replace(/<[^>]+>/g, '').trim();
 
-    /* if thread_ts is present, then it is a message in a thread
-    if ts value equals thread_ts, then it is a parent message
-    if ts value does not equal thread_ts, then it is a reply message */
+    
+
     const parentMessageTs = event.thread_ts ?? event.ts;
     const isParentMessage = parentMessageTs === event.ts;
 
-    /* if not parent message then check for existing session else, create a new session. */
+    
     let sessionId = null;
     let qoldauaiKbId = null;
     try {
@@ -66,7 +65,7 @@ export class SlackBotService {
       await client.chat.update({
         channel: event.channel,
         text: responseAnswer['response'],
-        // thread_ts: parentMessageTs,
+        
         ts: loadingMsgTs,
       });
     } catch (error) {

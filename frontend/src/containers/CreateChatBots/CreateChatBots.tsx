@@ -14,7 +14,6 @@ import {
 import { createKnowledgebase, fetchKnowledgebaseCrawlData, fetchKnowledgebaseDetails, generateEmbeddings, fetchKnowledgebaseCrawlDataForDocs, addTrainingDoc, updateWebsiteData, deleteKnowledgebase } from "../../services/knowledgebaseService";
 import { ProductSetupData, DocsKnowledgeData } from "../../types/knowledgebase.type";
 
-
 export const CreateChatBots = () => {
 	const toast = useToast();
 	const history = useHistory();
@@ -165,137 +164,10 @@ export const CreateChatBots = () => {
 		}
 	}, [knowledgeBaseId, toast, history]);
 
-	// TODO: remove if unused
-	/*
-	const handlePrimaryButtonClick = React.useCallback(async (payLoad: ProductSetupData) => {
-		setIsSubmitting(true);
-		console.log('payload', payLoad)
+	
+	
 
-		if(savingStep ==='CRAWL') {
-			try {
-				setProductSetupLoadingText('Crawling your website data.. This may take some time based on the amount of the data...');
-				const response = await createKnowledgebase(payLoad.websiteData);
-
-				setKnowledgeBaseId(response.data._id);
-
-				if (payLoad.files?.length && payLoad.files.length > 0) {
-					setIsUploadingDocs(true);
-					for (const file of payLoad.files) {
-						try {
-							await addTrainingDoc(response.data._id, file);
-						} catch (error) {
-							console.log('error', error)
-						}
-					}
-					setIsUploadingDocs(false);
-
-
-					setDocsDataLoading(true);
-					const _docsDataResponse = await fetchKnowledgebaseCrawlDataForDocs(response.data._id, 1); 
-					const _docsData: DocsKnowledgeData = {
-						docs: _docsDataResponse.data.results,
-						pages: _docsDataResponse.data.pages,
-						knowledgebaseId: response.data._id
-					}
-					setDocsData(_docsData);
-					setDocsDataLoading(false);
-				}
-
-				let interval = setInterval(async () => {
-					const details = await fetchKnowledgebaseDetails(response.data._id);
-					console.log("details", details);
-					if(details.data.status === 'CRAWLED' || !details.data.websiteData) {
-						clearInterval(interval);
-						
-						const _crawlDataResponse = await fetchKnowledgebaseCrawlData(response.data._id, 1);
-						const _data = {
-							stats: details.data.crawlData?.stats,
-							urls: _crawlDataResponse.data.results,
-							pages: _crawlDataResponse.data.pages,
-							knowledgebaseId: details.data._id
-						}
-
-						setDefaultCrauledData(_data)
-						setIsSubmitting(false);
-						setPrimaryButtonLabel('Create Chatbot');
-
-
-						setSavingStep('EMBED');
-						//Training ChatGPT with your website data...
-						
-						
-						//await generateEmbeddings(chatBotId);
-						
-					} else if ( details.data.status === 'CRAWL_ERROR') {
-						clearInterval(interval);
-						setIsSubmitting(false);
-						setPrimaryButtonLabel('Verify pages');
-						setKnowledgeBaseId('');
-						toast({
-							title: `Қате орын алды`,
-							status: "error",
-							isClosable: true,
-						});
-					}
-				}, 2000);
-
-				
-			} catch (error) {
-				setIsSubmitting(false);
-				const errorData = error?.response?.data?.message
-				toast({
-					title:  (errorData) || 'Қате орын алды',
-					status: "error",
-					isClosable: true,
-				});
-			}
-		} else {
-			try {
-				setProductSetupLoadingText('Training ChatGPT with your website data... This may take some time based on the amount of the data...');
-				await generateEmbeddings(knowledgeBaseId);
-
-
-				let interval = setInterval(async () => {
-					const details = await fetchKnowledgebaseDetails(knowledgeBaseId);
-					console.log("details", details);
-					const chatBotId = details.data._id
-					
-					if ( details.data.status === 'EMBEDDING_ERROR') {
-						clearInterval(interval);
-						setIsSubmitting(false);
-						toast({
-							title: `Қате орын алды`,
-							status: "error",
-							isClosable: true,
-						});
-					} else if(details.data.status === 'READY') {
-						clearInterval(interval);
-						setIsSubmitting(false);
-						toast({
-							title: `Чат-бот сәтті жасалды`,
-							status: "success",
-							isClosable: true,
-						});
-						history.push(`/app/edit-chatbot/${chatBotId}/?step=chatbot`);
-					}
-				}, 2000);
-
-				
-			} catch (error) {
-				setIsSubmitting(false);
-				setDocsDataLoading(false);
-				const errorData = error?.response?.data?.message
-				toast({
-					title:  (errorData) || 'Қате орын алды',
-					status: "error",
-					isClosable: true,
-				});
-			}
-		}
-	}, [history, knowledgeBaseId, savingStep, toast]);
-    */
-
-	// TODO: remove if unused
+	
 	const handleSecondaryButtonClick = React.useCallback(async (payLoad: ProductSetupData, hasWebsiteDataChanged: boolean) => {
 		console.log('payload', payLoad)
 		setIsSubmitting(true);
@@ -357,10 +229,10 @@ export const CreateChatBots = () => {
 					setIsSubmitting(false);
 					setDefaultCrauledData(_data)
 					setSavingStep('EMBED');
-					//Training ChatGPT with your website data...
 					
 					
-					//await generateEmbeddings(chatBotId);
+					
+					
 					
 				} else if ( details.data.status === 'CRAWL_ERROR') {
 					clearInterval(interval);
@@ -401,7 +273,7 @@ export const CreateChatBots = () => {
 				disableTabs={isSubmitting}
 				onTabsChange={() => {}}
 				isSecondaryBtnSubmitting={isSecondaryBtnSubmitting}
-				// showSecondaryButton={savingStep === 'EMBED'}
+				
 				loadingText={productSetupLoadingText}
 				disableSubmitBtnByDefault
 				primaryButtonLabel={"Чат-бот құру"}

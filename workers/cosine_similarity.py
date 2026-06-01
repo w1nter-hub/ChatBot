@@ -13,22 +13,18 @@ from redis import Redis
 
 EMBEDDINGS_TTL = 5 * 60
 
-
 class KbEmbedding(TypedDict):
     _id: Optional[ObjectId]
     knowledgebaseId: ObjectId
     embededdings: List[float]
 
-
 class ChunkEmbedding(TypedDict):
     chunkId: Optional[ObjectId]
     embeddings: List[float]
 
-
 class Embeddings(TypedDict):
     _id: Optional[ObjectId]
     embeddings: List[ChunkEmbedding]
-
 
 def get_embeddings_for_knowledgebase(
     id: str,
@@ -61,7 +57,6 @@ def get_embeddings_for_knowledgebase(
         embeddings = json_util.loads(embeddings)
 
     return embeddings
-
 
 def get_top_chunks(
     target_embedding: List[float],

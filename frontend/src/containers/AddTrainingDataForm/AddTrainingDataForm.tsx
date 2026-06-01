@@ -15,7 +15,6 @@ import {
 import { updateTrainingData } from "../../services/knowledgebaseService";
 import MDEditor from "@uiw/react-md-editor";
 
-
 export const AddTrainingDataForm = ({
 	selectedTrainingData,
 	knowledgeBaseId,
@@ -32,7 +31,6 @@ export const AddTrainingDataForm = ({
 		setQuestion(selectedTrainingData.title)
 		console.log('selectedTrainingData', selectedTrainingData)
 	}, [selectedTrainingData])
-
 
 	const handleAnswerChange = React.useCallback((value) => {
 		setAnswer(value)

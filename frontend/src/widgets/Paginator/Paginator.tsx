@@ -8,7 +8,6 @@ interface PaginatorProps {
 	pageCount: number;
 }
 
-
 export const Paginator = ({
 	onPageChange,
 	pageRangeDisplayed,

@@ -19,12 +19,12 @@ export class CreateKnowledgebaseDTO {
   @IsArray()
   urls: string[];
 
-  // Include paths (relative to website url)
+  
   @IsOptional()
   @IsArray()
   include: string[];
 
-  // Exclude paths (relative to website url)
+  
   @IsOptional()
   @IsArray()
   exclude: string[];
@@ -42,12 +42,12 @@ export class UpdateKnowledgebaseWebsiteDataDTO {
   @IsArray()
   urls: string[];
 
-  // Include paths (relative to website url)
+  
   @IsNotEmpty()
   @IsArray()
   include: string[];
 
-  // Exclude paths (relative to website url)
+  
   @IsNotEmpty()
   @IsArray()
   exclude: string[];

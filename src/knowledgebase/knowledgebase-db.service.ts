@@ -52,9 +52,7 @@ export class KnowledgebaseDbService {
     this.promptCollection = this.db.collection<Prompt>(PROMPT_COLLECTION);
   }
 
-  /*********************************************************
-   * KNOWLEDGEBASE COLLECTION
-   *********************************************************/
+  
 
   async insertKnowledgebase(data: Knowledgebase): Promise<Knowledgebase> {
     const res = await this.knowledgebaseCollection.insertOne(data);
@@ -303,9 +301,7 @@ export class KnowledgebaseDbService {
     await this.knowledgebaseCollection.deleteOne({ _id: id });
   }
 
-  /*********************************************************
-   * KNOWLEDGEBASE DATA STORE
-   *********************************************************/
+  
 
   async insertToKbDataStore(data: KbDataStore) {
     const res = await this.kbDataStoreCollection.insertOne(data);
@@ -319,11 +315,8 @@ export class KnowledgebaseDbService {
     return this.kbDataStoreCollection.findOne({ _id: id });
   }
 
-  /**
-   * Get cursor for datastore items for given knowledgebase
-   * @param kbId
-   * @returns
-   */
+  
+
   getKbDataStoreItemsForKnowledgebase(
     kbId: ObjectId,
     status?: DataStoreStatus[],
@@ -461,9 +454,7 @@ export class KnowledgebaseDbService {
     await this.kbDataStoreCollection.deleteMany(filter);
   }
 
-  /*********************************************************
-   * KNOWLEDGEBASE CHUNK COLLECTION
-   *********************************************************/
+  
 
   async insertChunk(data: Chunk): Promise<Chunk> {
     const res = await this.chunkColleciton.insertOne(data);
@@ -575,9 +566,7 @@ export class KnowledgebaseDbService {
     await this.chunkColleciton.deleteMany(filter);
   }
 
-  /*********************************************************
-   * KNOWLEDGEBASE EMBEDDING COLLECTION
-   *********************************************************/
+  
 
   async insertEmbeddingForChunk(data: KbEmbedding) {
     const res = await this.kbEmbeddingCollection.insertOne(data);
@@ -588,11 +577,8 @@ export class KnowledgebaseDbService {
     };
   }
 
-  /**
-   * Update embeedding for chunk in embeddings for KB
-   * @param knowledgebaseId
-   * @param embedding
-   */
+  
+
   async updateEmbeddingForChunk(chunkId: ObjectId, embeddings: number[]) {
     await this.kbEmbeddingCollection.updateOne(
       {
@@ -621,16 +607,14 @@ export class KnowledgebaseDbService {
     await this.kbEmbeddingCollection.deleteMany({ _id: { $in: ids } });
   }
 
-  /** All chunk embeddings for a knowledge base (used for in-process RAG search). */
+  
   async listEmbeddingsForKnowledgebase(kbId: ObjectId): Promise<KbEmbedding[]> {
     return this.kbEmbeddingCollection
       .find({ knowledgebaseId: kbId })
       .toArray();
   }
 
-  /*********************************************************
-   * CHAT SESSION COLLECTION
-   *********************************************************/
+  
 
   async insertChatSession(data: ChatSession) {
     const res = await this.chatSessionCollection.insertOne(data);
@@ -675,11 +659,8 @@ export class KnowledgebaseDbService {
     return session;
   }
 
-  /**
-   * Retrieves chat messages from chatSessions by sessionId.
-   * @param id - The ID of the chat session.
-   * @returns A promise that resolves to a sparse chat session message.
-   */
+  
+
   async getChatSessionSparseForWidgetById(
     id: ObjectId,
   ): Promise<ChatSessionMessageSparse> {
@@ -773,9 +754,7 @@ export class KnowledgebaseDbService {
     );
   }
 
-  /** *******************************************
-   * PROMPT RELATED
-   ******************************************** */
+  
 
   async listPrompts() {
     return this.promptCollection.find({}).toArray();

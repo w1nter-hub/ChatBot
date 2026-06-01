@@ -31,32 +31,23 @@ export class AuthService {
     this.logger = new Logger(AuthService.name);
   }
 
-  /**
-   * Generates the jet token
-   * @param payload
-   * @returns the JsonWebToken as string
-   */
+  
+
   private signPayload(payload: JwtPayload) {
     return {
       access: this.jwtService.sign(payload),
     };
   }
 
-  /**
-   * Validated the user from the JWT token
-   * @param payload
-   * @returns user object from the payload
-   */
+  
+
   async validateJwtPayload(payload: JwtPayload) {
     const { sub } = payload;
     return this.userService.findUserByIdSparse(sub);
   }
 
-  /**
-   * Generate Jwt token from user (used by login controller)
-   * @param user .
-   * @returns Signed JwtToken
-   */
+  
+
   async getJwtTokenForUser(user: UserSparse): Promise<JwtToken> {
     await this.userService.updateLastLoginTs(user);
 
@@ -81,25 +72,18 @@ export class AuthService {
     return this.signPayload(payload);
   }
 
-  /**
-   * Validate user based on username / password
-   * @param username .
-   * @param password .
-   * @returns User ob
-   */
+  
+
   async validateEmailPassword(email: string, password: string) {
     return this.userService.findByEmailPassword(email, password);
   }
 
-  /**
-   * Signup a new user
-   * @param data
-   * @returns
-   */
+  
+
   async signup(data: CreateUserDTO) {
     const user = await this.userService.createUser(data);
-    // Check user is present in the invited list
-    // Add to participants list of user is present
+    
+    
     await this.knowledgebaseService.addInvitedUsersToKnowledgeBase(
       data.email,
       user._id,
@@ -136,14 +120,14 @@ export class AuthService {
       );
     }
 
-    // Check if user is already created
+    
     const user = await this.userService.getUserByEmail(userProfile.email);
 
-    // If user already exists generate jwt token
+    
     if (user) {
       await this.userService.updateLastLoginTs(user);
-      // Check user is present in the invited list
-      // Add to participants list of user is present
+      
+      
       await this.knowledgebaseService.addInvitedUsersToKnowledgeBase(
         userProfile.email,
         user._id,
@@ -151,10 +135,10 @@ export class AuthService {
       return this.getJwtTokenForUser(user);
     }
 
-    // Create user
+    
     const newUser = await this.userService.createGoogleOAuthUser(userProfile);
-    // Check user is present in the invited list
-    // Add to participants list of user is present
+    
+    
     await this.knowledgebaseService.addInvitedUsersToKnowledgeBase(
       userProfile.email,
       newUser._id,
@@ -167,11 +151,8 @@ export class AuthService {
     return this.getJwtTokenForUser(newUser);
   }
 
-  /**
-   * Validates an API key and returns corresponding UserSparse object.
-   * @param apiKey - The API key to validate.
-   * @returns A Promise that resolves to a UserSparse object.
-   */
+  
+
   validateApiKey(apiKey: string): Promise<UserSparse> {
     return this.userService.findUserByApiKey(apiKey);
   }

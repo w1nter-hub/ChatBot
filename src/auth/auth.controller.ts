@@ -13,11 +13,8 @@ import { Role } from './types/role.enum';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  /**
-   * Checks the user credentials and logs in the user
-   * @param userDTO
-   * @returns user object and jwt token
-   */
+  
+
   @Post('login')
   @Public()
   @UseGuards(LocalAuthGuard)

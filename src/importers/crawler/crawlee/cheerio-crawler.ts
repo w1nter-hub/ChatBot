@@ -39,7 +39,7 @@ export class CrawleeCheerioCrawler implements CrawleeCrawler {
   }
 
   public async crawl(cb: CrawlPageDataCb) {
-    // Create crawler
+    
     this.crawler = new CheerioCrawler(
       {
         maxConcurrency: 15,
@@ -49,7 +49,7 @@ export class CrawleeCheerioCrawler implements CrawleeCrawler {
           const title = await $('title').text();
           const content = await $.html();
 
-          // Call cb with page data
+          
           await cb({
             url,
             title,
@@ -65,12 +65,12 @@ export class CrawleeCheerioCrawler implements CrawleeCrawler {
       config,
     );
 
-    // Run crawler
+    
     await this.crawler.run(this.config?.urls, {});
 
     this.stats = convertCrawleeStats(this.crawler.stats);
 
-    // Cleanup
+    
     await this.crawler.requestQueue.drop();
     await this.crawler.teardown();
   }

@@ -23,7 +23,7 @@ export interface UserMonthlyUsage {
   count: number
   msgCount: number
   rawTokenCount: number
-  weightedMsgCount: number; // Message count multiplied by model factor
+  weightedMsgCount: number; 
 }
 
 export const CurrentUser: any = {
@@ -36,10 +36,6 @@ export const CurrentUser: any = {
     },
 };
 
-
-
-
-//Permissions
 export interface PermissionsType {
     isOwner?: boolean;
     isAdmin?: boolean;
@@ -65,4 +61,3 @@ export interface PermissionsType {
       };
     },
   };
-  

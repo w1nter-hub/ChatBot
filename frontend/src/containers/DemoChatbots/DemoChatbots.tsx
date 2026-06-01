@@ -15,7 +15,6 @@ import { ChatBot } from "../../components/ChatBot/ChatBot";
 import { useEffect } from "react";
 import { DEMO_CHATBOTS_CONFIGURED, getDemoChatbotId } from "../../config";
 
-/** Дереккөз: әр бот үшін тек бір бет (бір URL) оқытуға арналған мысалдар. */
 function buildDemoChatBotsData() {
 	return [
 		{
@@ -26,7 +25,7 @@ function buildDemoChatBotsData() {
 				backgroundColor: "#5b47d8",
 				heading: "Мен сіздің Bilimland көмекшіңізбін",
 				description:
-					'Мен <a style="text-decoration:underline; font-weight:bold" href="https://bilimland.kz/kk/faq" target="_blank" rel="noopener noreferrer">Bilimland</a> платформасының <strong>осы бір беті (FAQ)</strong> бойынша оқытылдым. Онлайн сабақтар мен материалдар туралы сұрақ қоя аласыз.',
+					'Мен <a href="https://bilimland.kz/kk/faq" target="_blank" rel="noopener noreferrer">Bilimland</a> платформасының <strong>осы бір беті (FAQ)</strong> бойынша оқытылдым. Онлайн сабақтар мен материалдар туралы сұрақ қоя аласыз.',
 				fontColor: "#FFF",
 				borderRadius: "12px",
 				placement: "right",
@@ -42,7 +41,7 @@ function buildDemoChatBotsData() {
 				backgroundColor: "#00a884",
 				heading: "Мен сіздің мемлекеттік білім көмекшіңізбін",
 				description:
-					'Мен <a style="text-decoration:underline; font-weight:bold" href="https://www.gov.kz/memleket/entities/edu/activities/population?lang=kk" target="_blank" rel="noopener noreferrer">ҚР Білім және ғылым министрлігі</a> ресми бетінің <strong>осы бір бөлімі</strong> бойынша оқытылдым. Мемлекеттік білім саясаты туралы сұраңыз.',
+					'Мен <a href="https://www.gov.kz/memleket/entities/edu/activities/population?lang=kk" target="_blank" rel="noopener noreferrer">ҚР Білім және ғылым министрлігі</a> ресми бетінің <strong>осы бір бөлімі</strong> бойынша оқытылдым. Мемлекеттік білім саясаты туралы сұраңыз.',
 				fontColor: "#FFF",
 				borderRadius: "12px",
 				placement: "right",
@@ -57,7 +56,7 @@ function buildDemoChatBotsData() {
 				backgroundColor: "#1e3a5f",
 				heading: "Мен сіздің ұлттық каталог көмекшіңізбін",
 				description:
-					'Мен <a style="text-decoration:underline; font-weight:bold" href="https://nationalcatalog.kz/about" target="_blank" rel="noopener noreferrer">Nationalcatalog.kz</a> сайтының <strong>осы бір беті</strong> (About) бойынша оқытылдым. Біліктіліктер каталогы туралы сұрақ қоя аласыз.',
+					'Мен <a href="https://nationalcatalog.kz/about" target="_blank" rel="noopener noreferrer">Nationalcatalog.kz</a> сайтының <strong>осы бір беті</strong> (About) бойынша оқытылдым. Біліктіліктер каталогы туралы сұрақ қоя аласыз.',
 				fontColor: "#FFF",
 				borderRadius: "12px",
 				placement: "right",
@@ -70,8 +69,6 @@ function buildDemoChatBotsData() {
 export const DemoChatbots = () => {
 	const [chatBotList, setChatBot] = React.useState<any[]>();
 	const [chatbotsLoaded, setChatbotsLoaded] = React.useState<boolean>(false);
-
-
 
 	useEffect(() => {
 		async function fetchData() {
@@ -148,7 +145,6 @@ export const DemoChatbots = () => {
 			</SimpleGrid>
 		);
 	}, [chatBotList, chatbotsLoaded, getNoDataIcon]);
-
 
 	return (
 		<Box

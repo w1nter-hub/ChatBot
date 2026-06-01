@@ -1,4 +1,3 @@
-// SocketService.ts
 import io, { Socket } from 'socket.io-client';
 import { baseURL } from '../config';
 
@@ -32,5 +31,3 @@ class SocketService {
 
 const socketService = new SocketService();
 export default socketService;
-
-

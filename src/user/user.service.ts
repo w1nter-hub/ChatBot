@@ -21,11 +21,6 @@ import {
 } from './user.schema';
 import { CustomKeyData } from '../knowledgebase/knowledgebase.schema';
 
-/**
- * Sanitise user objcect from sensitive info
- * @param user
- * @returns
- */
 function sanitizeUser<T>(user: T): Exclude<T, 'password'> {
   if ((user as any)?.password) (user as any).password = undefined;
   return user as any;
@@ -47,21 +42,15 @@ export class UserService {
     );
   }
 
-  /**
-   * Get user by emailId
-   * @param email
-   * @returns
-   */
+  
+
   async getUserByEmail(email: string) {
     const user = await this.userCollection.findOne({ email });
     return sanitizeUser(user);
   }
 
-  /**
-   * Find user by id
-   * @param id
-   * @returns
-   */
+  
+
   async findUserByIdSparse(id: string): Promise<UserSparse> {
     const user: UserSparse = await this.userCollection.findOne(
       { _id: new ObjectId(id) },
@@ -70,11 +59,8 @@ export class UserService {
     return sanitizeUser(user);
   }
 
-  /**
-   * Finds a user by their API key.
-   * @param key - The API key to search for.
-   * @returns A Promise that resolves to a UserSparse object.
-   */
+  
+
   async findUserByApiKey(key: string): Promise<UserSparse> {
     const user: UserSparse = await this.userCollection.findOne(
       { 'apiKeys.apiKey': key },
@@ -90,12 +76,8 @@ export class UserService {
     return sanitizeUser(user);
   }
 
-  /**
-   * Find user by email, password
-   * @param email
-   * @param password
-   * @returns
-   */
+  
+
   async findByEmailPassword(
     email: string,
     password: string,
@@ -147,16 +129,13 @@ export class UserService {
     });
   }
 
-  /**
-   * Create a new user
-   * @param data
-   * @returns
-   */
+  
+
   async createUser(data: CreateUserDTO) {
-    // Validate password (if present)
+    
     if (
       data.password === undefined ||
-      // data.password.length < 8 ||
+      
       data.password !== data.confirmPassword
     ) {
       throw new HttpException('Invalid Password', HttpStatus.BAD_REQUEST);
@@ -164,7 +143,7 @@ export class UserService {
       data.password = await hash(data.password, 10);
     }
 
-    // Check if email already exists
+    
     const user = await this.getUserByEmail(data.email);
     if (user) {
       throw new HttpException(
@@ -193,11 +172,8 @@ export class UserService {
     });
   }
 
-  /**
-   * Get user profile
-   * @param user
-   * @returns
-   */
+  
+
   async getUserProfile(user: UserSparse) {
     const userData: UserProfile = await this.userCollection.findOne(
       { _id: user._id },
@@ -213,8 +189,8 @@ export class UserService {
       },
     );
 
-    // Modify the month usage to reflect the current month even if in the db
-    // its of a previous month (basically no usage in the current month)
+    
+    
     const currentMonth = `${
       new Date().getMonth() + 1
     }/${new Date().getFullYear()}`;
@@ -235,7 +211,7 @@ export class UserService {
       userData.monthUsage.msgCount = 0;
     }
 
-    // Since weightedMsgCount was newly added, set it to msgCount if not present
+    
     if (userData.monthUsage && !userData.monthUsage.weightedMsgCount) {
       userData.monthUsage.weightedMsgCount = userData.monthUsage.msgCount;
     }
@@ -247,9 +223,7 @@ export class UserService {
     return { ...userData, subscriptionData };
   }
 
-  /** **************************************************
-   * SUBSCRIPTION RELATED
-   *************************************************** */
+  
 
   async setUserSubscription(
     email: string,
@@ -264,8 +238,8 @@ export class UserService {
       update['subscriptionData'] = payload;
     }
 
-    // TODO: If the user is not present then we need to create
-    // TODO: We will need to send email to user with password since this user won't have a password
+    
+    
     await this.userCollection.updateOne(
       { email },
       {
@@ -356,16 +330,10 @@ export class UserService {
     return res;
   }
 
-  /** **************************************************
-   * API KEY RELATED
-   *************************************************** */
+  
 
-  /**
-   * Adds a new API key for a user.
-   * @param userId - The ID of the user.
-   * @param apikeyData - The data for the new API key.
-   * @returns The generated API key.
-   */
+  
+
   async addNewApikey(
     userId: ObjectId,
     apikeyData: ApikeyData,
@@ -382,11 +350,8 @@ export class UserService {
     }
   }
 
-  /**
-   * Retrieves the API keys of a user.
-   * @param userId The ID of the user.
-   * @returns A promise that resolves to an object containing the user's API keys.
-   */
+  
+
   async getUserApikeys(userId: ObjectId): Promise<Pick<User, 'apiKeys'>> {
     const res = await this.userCollection.findOne(
       { _id: userId },
@@ -408,9 +373,7 @@ export class UserService {
     }
   }
 
-  /** **************************************************
-   * CHATBOT MONTHLY USAGE RELATED
-   *************************************************** */
+  
 
   async getUserMonthlyUsageData(
     userId: ObjectId,
@@ -427,13 +390,8 @@ export class UserService {
     return usageData;
   }
 
-  /**
-   * Updates the monthly usage for a user by a given value.
-   *
-   * @param userId - The ID of the user.
-   * @param n - Token value normalized with the model used .
-   * @param rawTokenCount - The token count which is not normalized.
-   */
+  
+
   async updateMonthlyUsageByN(
     userId: ObjectId,
     n: number,
@@ -522,7 +480,7 @@ export class UserService {
   ) {
     const query = { email, knowledgebaseId };
 
-    // Update with upsert option
+    
     const update = {
       $set: { email, knowledgebaseId, role, createdAt: new Date() },
     };

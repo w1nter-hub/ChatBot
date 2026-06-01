@@ -11,7 +11,6 @@ from extract_text import get_text_from_pdf, get_text_from_html
 
 load_dotenv()
 
-
 # Redis related
 REDIS_HOST = os.getenv("REDIS_HOST") or "localhost"
 REDIS_PORT = int(os.getenv("REDIS_PORT") or "6379")
@@ -27,7 +26,7 @@ MONGO_DBNAME = os.getenv("MONGO_DBNAME")
 mongo = pymongo.MongoClient(MONGO_URI)
 db = mongo[MONGO_DBNAME]
 
-# Celery worker related — must match Node API (Upstash: use REDIS_URL / rediss://)
+# Celery worker related — must match Node API (Upstash: use REDIS_URL / rediss:
 if REDIS_URL:
     REDIS_CONN_STR = REDIS_URL if REDIS_URL.endswith("/") else REDIS_URL + "/"
 else:
@@ -35,18 +34,15 @@ else:
 app = Celery("cosine_similiary_worker", broker=REDIS_CONN_STR, backend=REDIS_CONN_STR)
 app.conf.result_expires = 60
 
-
 @app.task
 def get_top_n_chunks(
     target_embedding: List[float], knowledgebase_id: str, chunk_count: int
 ):
     return get_top_chunks(target_embedding, knowledgebase_id, chunk_count, db, r)
 
-
 @app.task
 def extract_pdf_text(knowledgebase_id: str, pdf_path: str, max_pages: int, filename: str) -> str:
     return get_text_from_pdf(knowledgebase_id, pdf_path, max_pages, filename, db)
-
 
 @app.task
 def extract_html_text(html: str) -> str:

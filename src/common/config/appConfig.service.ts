@@ -6,7 +6,7 @@ import { AppConfig } from './configuration';
 class AppConfigService {
   constructor(private configService: ConfigService<AppConfig>) {}
 
-  // Reexport the get function from the config service
+  
   get = this.configService.get.bind(
     this.configService,
   ) as ConfigService<AppConfig>['get'];

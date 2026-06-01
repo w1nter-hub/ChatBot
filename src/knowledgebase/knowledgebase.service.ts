@@ -45,18 +45,12 @@ export class KnowledgebaseService {
     private emailService: EmailService,
   ) {}
 
-  /*********************************************************
-   * KNOWLEDGEBASE CREATION AND CRAWLING
-   *********************************************************/
+  
 
-  /**
-   * Helper method to determine if a URL is a parent path of another URL
-   * @param parentPath The potential parent path
-   * @param childPath The potential child path
-   * @returns boolean True if parentPath is a parent of childPath
-   */
+  
+
   private isParentPath(parentPath: string, childPath: string): boolean {
-    // Ensure paths have consistent formatting (starting with / and no trailing /)
+    
     const normalizePathForComparison = (p: string) => {
       if (!p.startsWith('/')) p = '/' + p;
       return p.replace(/\/+$/, '');
@@ -65,10 +59,10 @@ export class KnowledgebaseService {
     const normalizedParent = normalizePathForComparison(parentPath);
     const normalizedChild = normalizePathForComparison(childPath);
 
-    // A path is a parent if:
-    // 1. The child path starts with the parent path
-    // 2. The child path is longer than the parent path
-    // 3. The character after the parent path in the child path is a '/'
+    
+    
+    
+    
     return normalizedChild.startsWith(normalizedParent) &&
            normalizedChild.length > normalizedParent.length &&
            normalizedChild.charAt(normalizedParent.length) === '/';
@@ -84,28 +78,28 @@ export class KnowledgebaseService {
 
     const includeUrlsForInit = websiteData.include.map((u) => `${baseUrl}${u}`);
 
-    // Process inclusion and exclusion patterns with proper precedence
+    
     const includePatterns = websiteData.include.flatMap((u) => [
       `${baseUrl}${u}`,
       `${baseUrl}${u}/**/*`,
     ]);
 
-    // Generate explicit exclusion patterns for each excluded path
+    
     let excludePatterns = [];
 
-    // First add the specific exclusion patterns defined by the user
+    
     websiteData.exclude.forEach((excludePath) => {
-      // Check if this exclusion path is a subdirectory of any included path
+      
       const isSubdirOfIncludedPath = websiteData.include.some((includePath) =>
         this.isParentPath(includePath, excludePath)
       );
 
-      // Add explicit exclusion patterns for this path
+      
       excludePatterns.push(`${baseUrl}${excludePath}`);
       excludePatterns.push(`${baseUrl}${excludePath}/**/*`);
 
-      // If this is a subdirectory of an included path, add more specific exclusion patterns
-      // to ensure it's properly excluded even when its parent is included
+      
+      
       if (isSubdirOfIncludedPath) {
         excludePatterns.push(`${baseUrl}${excludePath}/*`);
         excludePatterns.push(`${baseUrl}${excludePath}/**`);
@@ -123,7 +117,7 @@ export class KnowledgebaseService {
       maxPages,
     };
 
-    // Exclude other file types
+    
     data.exclude.push(`${baseUrl}/**/*.mp3`);
 
     const client = this.celeryClient.get(CeleryClientQueue.CRAWLER);
@@ -136,13 +130,8 @@ export class KnowledgebaseService {
     );
   }
 
-  /**
-   * Clean website data urls
-   * - websiteUrl, urls: This should be a valid url and should not have trailing /
-   * - include, exclude: This should being with a slash
-   * @param data
-   * @returns
-   */
+  
+
   public cleanWebsiteData(
     data: Knowledgebase['websiteData'],
   ): Knowledgebase['websiteData'] {
@@ -151,25 +140,25 @@ export class KnowledgebaseService {
         throw new HttpException(`Invalid Url ${url}`, HttpStatus.BAD_REQUEST);
       }
 
-      // Remove any trailing slashes
+      
       url = url.replace(/\/+$/, '');
 
       return url;
     }
 
     function validatePath(path: string): string {
-      // Ensure / in the beginning
+      
       if (path[0] !== '/') {
         path = '/' + path;
       }
 
-      // Remove any slashes at the end
+      
       path = path.replace(/\/+$/, '');
 
       return path;
     }
 
-    // Ensure website url and urls is well formed
+    
     data.websiteUrl = validateUrl(data.websiteUrl);
     data.urls = data.urls.map(validateUrl);
 
@@ -179,14 +168,10 @@ export class KnowledgebaseService {
     return data;
   }
 
-  /**
-   * Create a new knowledgebase and crawl urls
-   * @param user
-   * @param data
-   * @returns
-   */
+  
+
   async createKnowledgebase(user: UserSparse, data: CreateKnowledgebaseDTO) {
-    // Check how many kbs user currently has
+    
     const kbCount = await this.kbDbService.getKnowledgebaseCountForUser(
       user._id,
     );
@@ -211,7 +196,7 @@ export class KnowledgebaseService {
       role: UserRoles.ADMIN,
       email: user.email,
     };
-    // Create a new Kb in db
+    
     const ts = new Date();
     const kb: Knowledgebase = {
       name: data.name,
@@ -226,7 +211,7 @@ export class KnowledgebaseService {
     };
     const kbData = await this.kbDbService.insertKnowledgebase(kb);
 
-    // Start crawling
+    
     if (websiteData) {
       const maxPages = isAdmin(user) ? 2000 : subscriptionData.maxPages;
       await this.crawlWebsiteForKb(
@@ -240,12 +225,8 @@ export class KnowledgebaseService {
     return kbData;
   }
 
-  /**
-   * Update website data urls for Knowledgebase and recrawl
-   * @param user
-   * @param data
-   * @returns
-   */
+  
+
   async updateKnowledgebaseWebsiteData(
     user: UserSparse,
     id: string,
@@ -274,7 +255,7 @@ export class KnowledgebaseService {
       exclude: data.exclude,
     });
 
-    // Delete all exiting chunks and embeddings
+    
     await Promise.all([
       this.kbDbService.deleteKbDataStoreItemsForKnowledgebase(
         kbId,
@@ -295,12 +276,12 @@ export class KnowledgebaseService {
       websiteData,
     };
 
-    // Update data in db
+    
     await this.kbDbService.updateKnowledgebase(kbId, updateData);
 
     const updatedData = { ...kb, ...updateData };
 
-    // Start crawling
+    
     const maxPages = isAdmin(user) ? 2000 : subscriptionData.maxPages;
     await this.crawlWebsiteForKb(
       kbId,
@@ -312,11 +293,8 @@ export class KnowledgebaseService {
     return updatedData;
   }
 
-  /**
-   * Start generating embeddings for Knowledgebase
-   * @param user
-   * @param id
-   */
+  
+
   async generateEmbeddingsForKnowledgebase(user: UserSparse, id: string) {
     const kbId = new ObjectId(id);
 
@@ -343,9 +321,7 @@ export class KnowledgebaseService {
     await task.applyAsync([kbId.toString()]);
   }
 
-  /*********************************************************
-   * KNOWLEDGEBASE APIS
-   *********************************************************/
+  
 
   private getUserSubscriptionData(user: UserSparse): SubscriptionPlanInfo {
     const userPlan = user.activeSubscription;
@@ -371,21 +347,18 @@ export class KnowledgebaseService {
     return JSON.stringify(prompt);
   }
 
-  /**
-   * Get all knowledgebases for user
-   * @param user
-   * @returns
-   */
+  
+
   async listKnowledgebasesForUser(user: UserSparse) {
-    // this is for backward compatibility
-    // we can remove this after running migration script(copy owner to participants).
+    
+    
     const kbs = await this.kbDbService.getKnowledgesbaseListForUser(user._id);
 
     const participatedList =
       await this.kbDbService.getParticipatedKnowledgesbaseListForUser(user._id);
 
-    // this is for backward compatibility
-    // we can remove this after running migration script(copy owner to participants).
+    
+    
     participatedList.forEach((kb) => {
       if (!kbs.some((entry) => entry._id.equals(kb._id))) {
         kbs.push(kb);
@@ -394,17 +367,13 @@ export class KnowledgebaseService {
     return kbs;
   }
 
-  /**
-   * Get knowledgebase detail data
-   * @param user
-   * @param id
-   * @returns
-   */
+  
+
   async getKnowledgeBaseDetail(user: UserSparse, id: string) {
     const kb = await this.kbDbService.getKnowledgebaseById(new ObjectId(id));
     checkUserPermissionForKb(user, kb, [UserPermissions.READ]);
 
-    // Set Default prompt if knowledgebase prompt is not defined
+    
     if (!kb.prompt) {
       kb.prompt = DEFAULT_CHATGPT_PROMPT;
     }
@@ -414,14 +383,12 @@ export class KnowledgebaseService {
     return kb;
   }
 
-  /**
-   * Admin API to set Knowledgebase as a Demo KB
-   * @param kbId
-   */
+  
+
   async setKnowledgebaseAsDemo(user: UserSparse, knowledgebaseId: string) {
     const kbId = new ObjectId(knowledgebaseId);
 
-    // Update the knowledgebase (also verify that the kb belongs to the admin user)
+    
     const res = await this.kbDbService.updateKnowledgebase(kbId, {
       isDemo: true,
     });
@@ -431,11 +398,8 @@ export class KnowledgebaseService {
     }
   }
 
-  /**
-   * Delete knowledgebase and all its data
-   * @param user
-   * @param id
-   */
+  
+
   async deleteKnowledgebaseForUser(user: UserSparse, id: string) {
     const kbId = new ObjectId(id);
 
@@ -450,12 +414,8 @@ export class KnowledgebaseService {
     ]);
   }
 
-  /**
-   * Set chat widget data for Knowledgebase
-   * @param user
-   * @param id
-   * @param data
-   */
+  
+
   async setKnowledgebaseChatWidgeData(user: UserSparse, id: string, data: any) {
     const kbId = new ObjectId(id);
     const kb = await this.kbDbService.getKnowledgebaseSparseById(kbId);
@@ -464,11 +424,8 @@ export class KnowledgebaseService {
     await this.kbDbService.setKnowledgebaseChatWidgetData(kbId, data);
   }
 
-  /**
-   * Get Chat widget data for Knowledgebase
-   * @param id kk
-   * @returns
-   */
+  
+
   async getKnowledgebaseChatWidgetData(id: string) {
     let kbId: ObjectId;
     try {
@@ -508,7 +465,7 @@ export class KnowledgebaseService {
   }
 
   async getChatWidgetDataForDomain(domain: string) {
-    // Get knowldgebase from domain
+    
     const kb = await this.kbDbService.getKnowledgebaseSparseByDomain(domain);
     if (!kb) {
       throw new HttpException('Invalid Domain', HttpStatus.NOT_FOUND);
@@ -517,13 +474,8 @@ export class KnowledgebaseService {
     return this.getKnowledgebaseChatWidgetData(kb._id.toHexString());
   }
 
-  /**
-   * Set / Unset the defaultAnswer for the knowledgebase
-   * @param user
-   * @param id
-   * @param defaultAnswer
-   * @returns
-   */
+  
+
   async setKnowledgebaseDefaultAnswer(
     user: UserSparse,
     id: string,
@@ -579,13 +531,8 @@ export class KnowledgebaseService {
     await this.kbDbService.updateKnowledgebase(kbId, { adminEmail: email });
   }
 
-  /**
-   * Set custom domain for kb
-   * @param user
-   * @param id
-   * @param domain
-   * @returns
-   */
+  
+
   async setCustomDomain(user: UserSparse, id: string, domain: string) {
     const kbId = new ObjectId(id);
     const kb = await this.kbDbService.getKnowledgebaseSparseById(kbId);
@@ -598,13 +545,8 @@ export class KnowledgebaseService {
     return 'Done';
   }
 
-  /**
-   * Set Model for KB
-   * @param user
-   * @param id
-   * @param model
-   * @returns
-   */
+  
+
   async setModelName(user: UserSparse, id: string, model: string) {
     const kbId = new ObjectId(id);
     const kb = await this.kbDbService.getKnowledgebaseSparseById(kbId);
@@ -626,14 +568,8 @@ export class KnowledgebaseService {
     return 'Done';
   }
 
-  /**
-   * Sets the name of a knowledgebase.
-   *
-   * @param user
-   * @param id
-   * @param name
-   * @returns
-   */
+  
+
   async setKnowledgebaseName(user: UserSparse, id: string, name: string) {
     const kbId = new ObjectId(id);
     const kb = await this.kbDbService.getKnowledgebaseSparseById(kbId);
@@ -656,7 +592,7 @@ export class KnowledgebaseService {
     if (kb.participants && Array.isArray(kb.participants)) {
       updatedParticipants = kb.participants.map((owner) => {
         if (owner.id.toString() === userId.toString()) {
-          // Update the existing invitation for the user
+          
           return {
             id: userId,
             role: role,
@@ -666,13 +602,13 @@ export class KnowledgebaseService {
         return owner;
       });
 
-      // Check if the user was not already invited before updating
+      
       if (
         !kb.participants.some(
           (owner) => owner.id.toString() === userId.toString(),
         )
       ) {
-        // Add the new invitation for the user
+        
         updatedParticipants.push({ id: userId, role: role, email: email });
       }
     } else {
@@ -708,7 +644,7 @@ export class KnowledgebaseService {
 
     let userExist = false;
     if (invitedUser) {
-      // If user present
+      
       const userId = invitedUser._id;
       await this.updateKnowLedgeBaseParticipantsList(
         userId,
@@ -719,7 +655,7 @@ export class KnowledgebaseService {
       );
       userExist = true;
     } else {
-      // save invite details
+      
       await this.userService.insertOrUpdateInvitedEmail(
         data.email,
         kbId,
@@ -727,7 +663,7 @@ export class KnowledgebaseService {
       );
     }
 
-    // send invite email
+    
     await this.emailService.sendInviteUserEmail(
       data.email,
       user.email,

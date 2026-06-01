@@ -7,7 +7,6 @@ export interface PricingDiscounts {
 	discountPercentage: string;
 }
 
-// Need to remove the identifier
 export async function getPricingDiscounts(url:string): Promise<AxiosResponse<PricingDiscounts>> {
 	return await axios({
 		method: 'get',

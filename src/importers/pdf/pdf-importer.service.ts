@@ -33,7 +33,7 @@ export class PdfImporterService {
     const client = this.celeryClient.get(CeleryClientQueue.DEFAULT);
     const task = client.createTask('worker.extract_pdf_text');
 
-    // Extract pdf content and add to KbDataStore
+    
     const datastoreId = await task
       .applyAsync([knowledgebaeId, pdfPath, MAX_PDF_PAGES, filename])
       .get();
@@ -42,7 +42,7 @@ export class PdfImporterService {
       new ObjectId(datastoreId),
     );
 
-    // Create embeddings for dsItem
+    
     await this.datastoreService.generateChunksAndEmbeddingsForDataStoreItem(
       dsItem,
     );
@@ -65,7 +65,7 @@ export class PdfImporterService {
       file.originalname,
     );
 
-    // Delete the file after processing
+    
     await unlink(absPath);
   }
 }

@@ -1,10 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { CustomKeyData } from '../knowledgebase/knowledgebase.schema';
 
-/** **************************************************
- * TYPES
- *************************************************** */
-
 export const USER_COLLECTION = 'users';
 
 export enum Subscription {
@@ -26,10 +22,10 @@ export enum Subscription {
 
 export interface UserMonthlyUsage {
   month: string;
-  count: number; // Total token count (considering model used)
+  count: number; 
   msgCount: number;
-  rawTokenCount: number; // Token count (not considering model used)
-  weightedMsgCount: number; // Message count multiplied by model factor
+  rawTokenCount: number; 
+  weightedMsgCount: number; 
 }
 
 export interface SubscriptionData {
@@ -64,25 +60,25 @@ export interface User {
   name?: string;
   avatarUrl?: string;
   locale?: string;
-  // Sotres the usage (# messages) for current month
+  
   monthUsage?: UserMonthlyUsage;
-  // Subscription details
+  
   tokenCredits?: number;
   activeSubscription: Subscription;
   subscriptionData?: SubscriptionData;
-  // Custom keys
+  
   customKeys?: CustomKeyData;
-  // Whitelabelling settings
+  
   whitelabelling?: {
     removeBranding: boolean;
   };
-  // Webhooks
+  
   webhook?: {
     url: string;
     secret: string;
   };
   webhooks?: WebhookData[];
-  // API keys
+  
   apiKeys?: ApikeyData[];
   createdAt: Date;
   updatedAt: Date;

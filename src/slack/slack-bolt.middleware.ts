@@ -20,7 +20,7 @@ export class SlackBoltMiddleware implements NestMiddleware {
   ) {
     this.logger = new Logger(SlackBoltMiddleware.name);
     const runner = new AppRunner({
-      // logLevel: LogLevel.DEBUG,
+      
       signingSecret: process.env.SLACK_SIGNING_SECRET,
       clientId: process.env.SLACK_CLIENT_ID,
       clientSecret: process.env.SLACK_CLIENT_SECRET,
@@ -31,14 +31,14 @@ export class SlackBoltMiddleware implements NestMiddleware {
             installation.isEnterpriseInstall &&
             installation.enterprise !== undefined
           ) {
-            // handle storing org-wide app installation
+            
             return await this.slackTokenService.saveInstallationToDatabase(
               installation.enterprise.id,
               installation,
             );
           }
           if (installation.team !== undefined) {
-            // single team app installation
+            
             return await this.slackTokenService.saveInstallationToDatabase(
               installation.team.id,
               installation,
@@ -54,13 +54,13 @@ export class SlackBoltMiddleware implements NestMiddleware {
             installQuery.isEnterpriseInstall &&
             installQuery.enterpriseId !== undefined
           ) {
-            // handle org wide app installation lookup
+            
             return await slackTokenService.fetchInstallationByTeamId(
               installQuery.enterpriseId,
             );
           }
           if (installQuery.teamId !== undefined) {
-            // single team app installation lookup
+            
             return await slackTokenService.fetchInstallationByTeamId(
               installQuery.teamId,
             );
@@ -73,13 +73,13 @@ export class SlackBoltMiddleware implements NestMiddleware {
             installQuery.isEnterpriseInstall &&
             installQuery.enterpriseId !== undefined
           ) {
-            // org wide app installation deletion
+            
             return await slackTokenService.deleteInstallationByTeamId(
               installQuery.enterpriseId,
             );
           }
           if (installQuery.teamId !== undefined) {
-            // single team app installation deletion
+            
             return await slackTokenService.deleteInstallationByTeamId(
               installQuery.teamId,
             );
@@ -92,16 +92,16 @@ export class SlackBoltMiddleware implements NestMiddleware {
         stateVerification: false,
         installPathOptions: {
           beforeRedirection: async (req, res) => {
-            // console.log('beforeRedirection');
+            
             const qoldauBotId = req.url.split('qoldauKbId=')[1];
             this.logger.log(`qoldauKbId: ${qoldauBotId}`);
             if (
               qoldauBotId &&
               (await this.isValidKnowledgebase(qoldauBotId))
             ) {
-              // Set qoldauKbId as cookie with expiry of 5 minutes
+              
               const d = new Date();
-              d.setTime(d.getTime() + 5 * 60 * 1000); // 5 minutes in milliseconds
+              d.setTime(d.getTime() + 5 * 60 * 1000); 
               const expires = 'expires=' + d.toUTCString();
               res.setHeader(
                 'Set-Cookie',
@@ -115,15 +115,15 @@ export class SlackBoltMiddleware implements NestMiddleware {
         },
         callbackOptions: {
           beforeInstallation: async (options, req, res) => {
-            // console.log('beforeInstallation');
+            
             const cookie = req.headers.cookie;
-            // console.log('cookie before removal', cookie);
-            // remove qoldauKbId from cookie
+            
+            
             res.setHeader(
               'Set-Cookie',
               'qoldauKbId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;',
             );
-            const regex = /qoldauKbId=([a-zA-Z0-9]+)/; // Regular expression to match the botid value
+            const regex = /qoldauKbId=([a-zA-Z0-9]+)/; 
             const match = cookie.match(regex);
             let qoldauBotId;
             if (match) {
@@ -148,13 +148,13 @@ export class SlackBoltMiddleware implements NestMiddleware {
     app.event('app_uninstalled', async ({ event, logger, context }) => {
       try {
         if (context.isEnterpriseInstall && context.enterpriseId !== undefined) {
-          // org wide app installation deletion
+          
           return await slackTokenService.deleteInstallationByTeamId(
             context.enterpriseId,
           );
         }
         if (context.teamId !== undefined) {
-          // single team app installation deletion
+          
           return await slackTokenService.deleteInstallationByTeamId(
             context.teamId,
           );
@@ -182,7 +182,7 @@ export class SlackBoltMiddleware implements NestMiddleware {
   }
 
   private async onAppMention({ event, say, client }) {
-    // Ignore message_changed events
+    
     if (event.channel_type === 'im' && event.subtype === 'message_changed') {
       return;
     }

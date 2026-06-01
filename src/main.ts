@@ -25,22 +25,22 @@ async function bootstrap() {
   app.useGlobalGuards(new JwtAuthGuard(new Reflector()));
   app.useGlobalGuards(new RolesGuard(new Reflector()));
 
-  // Enable validation globally
+  
   app.useGlobalPipes(
     new ValidationPipe({
-      // Auto typecast income data to DTO Type whereever possible
+      
       transform: true,
     }),
   );
 
-  // const config = new DocumentBuilder()
-  //   .setTitle('QoldauAI API')
-  //   .setVersion('1.0')
-  //   .addTag('qoldauai')
-  //   .build();
+  
+  
+  
+  
+  
 
-  // const document = SwaggerModule.createDocument(app, config);
-  // SwaggerModule.setup('docs', app, document);
+  
+  
 
   const redisIoAdapter = new RedisIoAdapter(app);
   await redisIoAdapter.connectToRedis();

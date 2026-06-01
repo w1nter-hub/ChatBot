@@ -6,18 +6,15 @@ from datetime import datetime
 from enum import Enum
 from inscriptis import get_text
 
-
 class DataStoreType(Enum):
     WEBPAGE = "WEBPAGE"
     CUSTOM = "CUSTOM"
     DOCUMENT = "DOCUMENT"
     PDF = "PDF"
 
-
 class DataStoreStatus(Enum):
     CREATED = "CREATED"
     TRAINED = "TRAINED"
-
 
 class KbDataStore(TypedDict):
     _id: Optional[ObjectId]
@@ -28,7 +25,6 @@ class KbDataStore(TypedDict):
     type: DataStoreType
     createdAt: datetime
     updatedAt: datetime
-
 
 def get_text_from_pdf(
     knowledgebase_id: str, pdf_file_path: str, max_pages: int, filename: str, db: Database
@@ -61,7 +57,6 @@ def get_text_from_pdf(
     }
     res = data_store_collection.insert_one(ds_item)
     return str(res.inserted_id)
-
 
 def get_text_from_html(html: str) -> str:
     return get_text(html)

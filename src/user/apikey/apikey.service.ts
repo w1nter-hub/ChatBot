@@ -8,11 +8,8 @@ import { UserService } from '../user.service';
 export class ApikeyService {
   constructor(private readonly userService: UserService) {}
 
-  /**
-   * Retrieves all API keys for a given user.
-   * @param user - The user object.
-   * @returns A promise that resolves to an array of ApikeyData objects.
-   */
+  
+
   async getAllApiKeys(user: UserSparse): Promise<ApikeyData[]> {
     const apiKeysData = await this.userService.getUserApikeys(user._id);
     if (!apiKeysData) {
@@ -24,13 +21,8 @@ export class ApikeyService {
     return apiKeysData.apiKeys;
   }
 
-  /**
-   * Deletes an API key for a user.
-   * @param userId - The ID of the user.
-   * @param id - The ID of the API key to delete.
-   * @returns A Promise that resolves to the result of the deletion.
-   * @throws HttpException if the API key ID is invalid.
-   */
+  
+
   async deleteApiKey(userId: ObjectId, id: string) {
     let apiKeyId: ObjectId;
     try {
@@ -41,11 +33,8 @@ export class ApikeyService {
     return await this.userService.deleteApiKey(userId, apiKeyId);
   }
 
-  /**
-   * Creates a new API key for a user.
-   * @param user - The user for whom the API key is being created.
-   * @returns A promise that resolves to the generated API key.
-   */
+  
+
   async createApiKey(user: UserSparse, keyName: string): Promise<string> {
     const apikey = uuidv4();
 

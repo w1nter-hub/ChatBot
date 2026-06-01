@@ -48,7 +48,7 @@ export const ChatSessionsNew = ({ chatbotId, userId }: ChatSessionsProps) => {
 
     const updateChatSessionReadStatus = useCallback(async (chatId: string, isUnread: boolean, needStateUpdate: boolean = true) => {
         try {
-            // Toggle read/unread based on isUnread flag
+            
             await (isUnread ? unReadChatSession : readChatSession)(chatId);
             if (needStateUpdate) {
                 setChatSessions((prev) => {
@@ -64,7 +64,6 @@ export const ChatSessionsNew = ({ chatbotId, userId }: ChatSessionsProps) => {
         }
     }, []);
 
-
     const handleSelectChat = useCallback((chatSession?: ChatSession) => {
         history.replace({
             pathname: `/app/edit-chatbot/${chatbotId}/chat-sessions`,
@@ -75,7 +74,6 @@ export const ChatSessionsNew = ({ chatbotId, userId }: ChatSessionsProps) => {
             updateChatSessionReadStatus(chatSession?._id, false)
         }
     }, [chatbotId, history, updateChatSessionReadStatus]);
-
 
     const handlePageClick = useCallback(async (selectedPage: number) => {
         try {
@@ -106,7 +104,6 @@ export const ChatSessionsNew = ({ chatbotId, userId }: ChatSessionsProps) => {
         fetchChatSessionDetails();
     }, [fetchChatSessionDetails]);
 
-
     const fetchChatSessionData = useCallback(async () => {
         if (!chatbotId || !!chatSessions) { setIsChatSessionsLoading(false); return; }
         try {
@@ -120,7 +117,6 @@ export const ChatSessionsNew = ({ chatbotId, userId }: ChatSessionsProps) => {
         }
 
     }, [chatSessions, chatbotId])
-
 
     useEffect(() => {
         fetchChatSessionData();
@@ -214,7 +210,6 @@ export const ChatSessionsNew = ({ chatbotId, userId }: ChatSessionsProps) => {
             socketService.disconnectSocket(chatbotId);
         };
     }, [chatbotId, onChatEvent, onNewBotReply, onNewSessionEvent, userId]);
-
 
     if (!isChatSessionsLoading && !chatSessions?.results.length) {
         return (

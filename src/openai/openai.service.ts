@@ -28,7 +28,7 @@ function getOpenAiClient(keys: string[]): [OpenAIApi, string, string] {
   if (validKeys.length === 0) {
     throw new Error('No valid OpenAI keys configured');
   }
-  // Use deterministic key selection for stable behavior across same queries.
+  
   const selectedKey = validKeys[0];
   const selectedKeyHash = createHash('md5').update(selectedKey).digest('hex');
 
@@ -56,7 +56,7 @@ export class OpenaiService {
 
     this.logger = new Logger(OpenaiService.name);
 
-    // Rate limiter for 100 req / min
+    
     this.embedRateLimiter = new RateLimiterMemory({
       points: 400,
       duration: 60 * 1,
@@ -74,21 +74,18 @@ export class OpenaiService {
     return tokens.length;
   }
 
-  /**
-   * Get embedding for given string
-   * @param input
-   * @returns
-   */
+  
+
   async getEmbedding(
     input: string,
     keys?: string[],
     model: EmbeddingModel = EmbeddingModel.OPENAI_EMBEDDING_2,
   ): Promise<number[] | undefined> {
-    // Get openAi client from the given keys
+    
     keys = keys || this.defaultKeys;
     const [openAiClient, _, openAiKeyHash] = getOpenAiClient(keys);
 
-    // Rate limiter check
+    
     try {
       await this.embedRateLimiter.consume(`openai-emd-${openAiKeyHash}`, 1);
     } catch (err) {
@@ -96,7 +93,7 @@ export class OpenaiService {
       throw new Error('Requests exceeded maximum rate');
     }
 
-    // API Call
+    
     try {
       const res = await openAiClient.createEmbedding({
         input,
@@ -111,20 +108,17 @@ export class OpenaiService {
     }
   }
 
-  /**
-   * Get completions from ChatGTP
-   * @param data
-   * @returns
-   */
+  
+
   async getChatGptCompletion(
     data: CreateChatCompletionRequest,
     keys?: string[],
   ): Promise<ChatGTPResponse> {
-    // Get openAi client from the given keys
+    
     keys = keys || this.defaultKeys;
     const [openAiClient, _, openAiKeyHash] = getOpenAiClient(keys);
 
-    // Rate limiter check
+    
     try {
       await this.rateLimiter.consume(`openai-req-${openAiKeyHash}`, 1);
     } catch (err) {
@@ -132,7 +126,7 @@ export class OpenaiService {
       throw new Error('Requests exceeded maximum rate');
     }
 
-    // API Call
+    
     try {
       const res = await openAiClient.createChatCompletion(data);
       return {
@@ -150,12 +144,8 @@ export class OpenaiService {
     }
   }
 
-  /**
-   * Get streaming response from chatgpt
-   * @param data
-   * @param completeCb
-   * @returns
-   */
+  
+
   async getChatGptCompletionStream(
     data: CreateChatCompletionRequest,
     completeCb?: (
@@ -164,11 +154,11 @@ export class OpenaiService {
     ) => Promise<void>,
     keys?: string[],
   ) {
-    // Get openAi client from the given keys
+    
     keys = keys || this.defaultKeys;
     const [_, openAiKey, openAiKeyHash] = getOpenAiClient(keys);
 
-    // Rate limiter check
+    
     try {
       await this.rateLimiter.consume(`openai-req-${openAiKeyHash}`, 1);
     } catch (err) {

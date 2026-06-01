@@ -36,9 +36,7 @@ export class OfflineMsgService {
     this.offlineMsgCollection = this.db.collection(OFFLINE_MSG_COLLECTION);
   }
 
-  /*********************************************************
-   * DB OPERATIONS
-   *********************************************************/
+  
 
   async insertOfflineMsg(data: NewOfflineMsgDTO): Promise<OfflineMessage> {
     const msg: OfflineMessage = {
@@ -93,15 +91,10 @@ export class OfflineMsgService {
     return response;
   }
 
-  /*********************************************************
-   * APIS
-   *********************************************************/
+  
 
-  /**
-   * Add a new offline message
-   * @param data
-   * @returns
-   */
+  
+
   async createOfflineMessage(data: NewOfflineMsgDTO) {
     const kbId = new ObjectId(data.knowledgebaseId);
     const kb = await this.kbDbService.getKnowledgebaseById(kbId);
@@ -109,23 +102,23 @@ export class OfflineMsgService {
       throw new HttpException('Invalid Knowledgebase', HttpStatus.NOT_FOUND);
     }
 
-    // Choose email address to send this mail
-    // If adminEmail field is set user that, else use owner email
+    
+    
     let email = '';
     if (kb.adminEmail) {
       email = kb.adminEmail;
     } else {
-      // Get kb owner
+      
       const kbOwner = await this.userService.findUserByIdSparse(
         kb.owner.toHexString(),
       );
       email = kbOwner.email;
     }
 
-    // Insert offline msg
+    
     const res = await this.insertOfflineMsg(data);
 
-    // Send email
+    
     await this.emailService.sendOfflineMsgEmail(
       email,
       kb.websiteData.websiteUrl,
@@ -134,7 +127,7 @@ export class OfflineMsgService {
       data.name,
     );
 
-    // Call webhook with the offline msg
+    
     this.webhookService.callWebhook(kb.owner, {
       event: WebhookEventType.OFFLINE_MSG,
       payload: {
@@ -152,15 +145,8 @@ export class OfflineMsgService {
     return res;
   }
 
-  /**
-   * Get paginated list of offline msgs
-   * @param user
-   * @param knowledgebaseId
-   * @param pageSize
-   * @param before
-   * @param after
-   * @returns
-   */
+  
+
   async getOfflineMsgsForKnowledgebase(
     user: UserSparse,
     knowledgebaseId: string,
@@ -189,20 +175,20 @@ export class OfflineMsgService {
       return;
     }
 
-    // Choose email address to send this mail
-    // If adminEmail field is set user that, else use owner email
+    
+    
     let email = '';
     if (kb.adminEmail) {
       email = kb.adminEmail;
     } else {
-      // Get kb owner
+      
       const kbOwner = await this.userService.findUserByIdSparse(
         kb.owner.toHexString(),
       );
       email = kbOwner.email;
     }
 
-    // Send email
+    
     await this.emailService.sendManualMsgEmail(
       email,
       msg,

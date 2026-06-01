@@ -34,7 +34,6 @@ export function validateEmailAddress(email: string) {
 	return email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
 }
 
-
 interface ChatBotsCustomizeProps {
 	onNextClick: (formValues: ChatBotCustomizeData) => void;
 	onBackClick: () => void;
@@ -43,7 +42,7 @@ interface ChatBotsCustomizeProps {
 	isSubmitting?: boolean;
 	showheader?: boolean;
 	showTimeMessage?: boolean;
-	/** Қолданылмайды — API үйлесімділігі үшін сақталған */
+	
 	subscriptionName?: string;
 }
 
@@ -597,7 +596,6 @@ export const ChatBotsCustomize = ({
 								<Flex w="50%" height="100%" pos="absolute" right="0" top="0" bottom="74px" justifyContent="center" overflow="auto">
 									<div className="chat-wrap widget-open" id="chat-wrap" style={{ marginTop: '0', minHeight: "600px" }}>
 
-
 										<div className="chat-widget" style={{ borderRadius: values.borderRadius, width: "400px", height: "570px" }}>
 											<div className="chat-header" style={{ backgroundColor: values.backgroundColor, color: values.fontColor }}>
 												
@@ -640,7 +638,6 @@ export const ChatBotsCustomize = ({
 																{values.offlineMsgTabHeader}
 															</button>
 														</div>
-
 
 														<div className="chat-close">
 															<button className="chat-close-btn" id="chat-close-btn">
@@ -699,7 +696,6 @@ export const ChatBotsCustomize = ({
 																	setMessage(item.question)
 																}} className={styles.chatSampleMessage} data-message={item.question} key={index}>{item.label}</button>
 
-
 															))
 															}
 														</div>
@@ -719,13 +715,13 @@ export const ChatBotsCustomize = ({
 														<div className={styles.formGroup}>
 															<label className={styles.formLabel}>{values.nameFieldLabel} <span className={styles.formRequired}>*</span></label>
 															<input type="text" className={styles.formControl} id="offline-message-name" placeholder={values.nameFieldPlaceholder}></input>
-															{/* <div className={styles.invalidFeedback} id="invalid-feedback-email">{values.requiredFieldMsg}</div> */}
+															{}
 														</div>
 
 														<div className={styles.formGroup}>
 															<label className={styles.formLabel}>{values.emailFieldLabel} <span className={styles.formRequired}>*</span></label>
 															<input type="text" className={styles.formControl} id="offline-message-email" placeholder={values.emailFieldPlaceholder}></input>
-																{/* <div className={styles.invalidFeedback} id="invalid-feedback-email-invalid">{values.invalidEmailMsg}</div> */}
+																{}
 														</div>
 														<div className={styles.formGroup}>
 															<label className={styles.formLabel}>{values.msgFieldLabel} <span className={styles.formRequired}>*</span></label>

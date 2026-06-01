@@ -113,29 +113,9 @@ export const SettingsGeneral = () => {
             </Button>
           </HStack>
         </Flex>
-		{/* {user? (<><Divider maxW="3xl" orientation="horizontal" />
-        <Flex direction={'column'} w="100%">
-          <Box>
-            <Flex alignItems="center" justifyContent="space-between">
-              <Heading className={styles.heading} size="md">
-                Use your own API key
-              </Heading>
-              <Switch
-                //defaultChecked={(defaultCustomizationValues || chatWidgetDefaultValues).showReadMore}
-                //defaultChecked={getDefaultUsageValue()}
-				defaultChecked={user.customKeys && user.customKeys.useOwnKey}
-				//isDisabled={!apiKey || apiKey.includes('**')}
-                colorScheme="teal"
-				value={}
-				onChange={}
-                size="md"
-              />
-            </Flex>
-            <Text className={styles.subHeading}>
-			If turned off, or if the API key is invalid, QoldauAI will use its default API key. Please note that if your plan requires your own API key for brand removal, branding will be displayed when this option is off.
-            </Text>
-          </Box>
-        </Flex></>):null} */}
+		{
+
+}
 		
       </VStack>
 

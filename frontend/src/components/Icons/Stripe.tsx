@@ -4,7 +4,6 @@ interface IconProps extends HTMLAttributes<SVGElement> {
 	height?: number;
 }
 
-
 export const StripeIcon = ({
 	width = 20,
 	height = 20,

@@ -48,7 +48,7 @@ import { OpenaiChatbotService } from './openaiChatbotService';
 import { WebSocketChatGateway } from '../websocketchat.gateway';
 
 const CHAT_SESION_EXPIRY_TIME = 5 * 60;
-// Lower threshold improves recall for short/keyword queries from widgets.
+
 const CHUNK_FILTER_THRESHOLD = 0.15;
 const SOURCES_FILTER_THRESHOLD = 0.8;
 
@@ -132,7 +132,7 @@ export class ChatbotService {
   }
 
   private normalizeToken(token: string): string {
-    // Prefix-based normalization helps with Russian/Kazakh word forms.
+    
     const cleaned = token.toLowerCase().replace(/[^a-zа-яёіІңғүұқөһӘә0-9]/giu, '');
     return cleaned.length > 5 ? cleaned.slice(0, 5) : cleaned;
   }
@@ -183,7 +183,7 @@ export class ChatbotService {
         }
       }
 
-      // Backup in case sentence split produced nothing useful
+      
       if (!bestSentence && text.length) {
         bestSentence = text.slice(0, 500);
         bestRecord = record;
@@ -205,7 +205,7 @@ export class ChatbotService {
     const r = response.trim().toLowerCase();
     const f = (fallbackAnswer || '').trim().toLowerCase();
     if (f && r === f) return true;
-    // Handle custom default-answer wording variations from models.
+    
     return (
       r.includes("i don't know") ||
       r.includes('i do not know') ||
@@ -319,7 +319,7 @@ export class ChatbotService {
   ) {
     session.messages.push(msg);
 
-    // Calculate total tokens based on the model used and update the monthly usage for user and kb
+    
     const totalTokens = this.calculateTotalTokens(
       msg.qTokens,
       msg.aTokens,
@@ -350,21 +350,17 @@ export class ChatbotService {
     ]);
   }
 
-  // TODO: Recheck the logic for calculating the message count based on the model
-  /**
-   * Calculates the message count based on the specified model.
-   * @param messageCount The number of messages.
-   * @param model The model to calculate the message count for.
-   * @returns The calculated message count.
-   */
+  
+  
+
   calculateMsgCountBasedOnModel(messageCount: number, model: string) {
     switch (model) {
-      case 'gpt-4-0613': // GPT-4
+      case 'gpt-4-0613': 
         return messageCount * 20;
-      case 'gpt-4-turbo-preview': // GPT-4-Turbo
+      case 'gpt-4-turbo-preview': 
         return messageCount * 10;
-      case 'gpt-3.5-turbo': // GPT-3.5-Turbo
-      case 'gpt-4o': // GPT-4o
+      case 'gpt-3.5-turbo': 
+      case 'gpt-4o': 
       default:
         return messageCount;
     }
@@ -381,16 +377,12 @@ export class ChatbotService {
     ]);
   }
 
-  /**
-   * Notify user of token limit exhaustion (at 80% and 100%)
-   * Has logic to not notify only one time per user / month
-   * @param userId
-   * @returns
-   */
+  
+
   public async notifyUserOfTokenLimitExhaustion(userId: ObjectId) {
-    //
-    // Check from the usage if the token is 80% exceeded or 100% exceeded
-    //
+    
+    
+    
 
     const monthUsageData = await this.userService.getUserMonthlyUsageData(
       userId,
@@ -400,9 +392,9 @@ export class ChatbotService {
       monthUsageData.activeSubscription,
     );
 
-    // We are sure that this function will be invoked only if the token
-    // limit is exceeded for the current month, so no need of verifying
-    // if the monthUsage.month is current month
+    
+    
+    
 
     const maxMessages = subscriptionPlan.maxMessages;
 
@@ -420,20 +412,20 @@ export class ChatbotService {
       emailSendFn = this.emailService.sendToken80ExhaustedEmail;
     }
 
-    if (!(emailSendFn || emailSendTaskName)) return; // Something is wrong at the triggering side
+    if (!(emailSendFn || emailSendTaskName)) return; 
 
-    // Check if an email has already been sent to the user
+    
     if ((await this.taskService.getTaskByName(emailSendTaskName)) !== null)
       return;
 
-    // Send mail
+    
     const user = await this.userService.findUserByIdSparse(
       userId.toHexString(),
     );
     console.log(`Sending mail to ${user.email}`);
     await emailSendFn(user.email);
 
-    // Update task db to record that email has been sent
+    
     await this.taskService.insertTask({
       name: emailSendTaskName,
       type: TaskType.EMAIL,
@@ -446,20 +438,15 @@ export class ChatbotService {
     });
   }
 
-  /**
-   * Checks if the user is under the usage limits.
-   * @param userId - The ID of the user.
-   * @param maxUsage - The maximum message count allowed per month.
-   * @param customKeys - Optional custom key data.
-   * @returns A Promise that resolves to a boolean indicating whether the user is under the usage limits.
-   */
+  
+
   private async isUseUnderUsageLimits(
     userId: ObjectId,
     maxUsage: number,
     customKeys?: CustomKeyData,
   ): Promise<boolean> {
-    // If there is a custom key configured for this knowledgebase
-    // then by pass any token limit checks
+    
+    
     if (customKeys?.useOwnKey === true) {
       return true;
     }
@@ -468,7 +455,7 @@ export class ChatbotService {
       userId,
     );
 
-    // If monthUsage does not exists then this is the first msg ever - allow
+    
     if (!monthUsageData.monthUsage) {
       return true;
     } else {
@@ -478,46 +465,42 @@ export class ChatbotService {
 
       const [month, year] = monthUsageData.monthUsage.month.split('/');
 
-      // If the last monthusage was reported for current month and year
-      // check the usage count
+      
+      
       if (year === currYear && month === currMonth) {
         if (monthUsageData.monthUsage.weightedMsgCount >= 0.8 * maxUsage) {
-          // Best-effort notification; should never block answering user queries.
+          
           try {
             const client = this.celeryClient.get(CeleryClientQueue.CRAWLER);
             const task = client.createTask('tasks.notify_token_limit');
             await task.applyAsync([userId.toHexString()]);
           } catch (e) {
-            // Ignore celery failures here to keep chatbot responses available.
+            
           }
         }
         return monthUsageData.monthUsage.weightedMsgCount < maxUsage;
       } else {
-        // Else return true as this is the first call for current month
+        
         return true;
       }
     }
   }
 
-  /**
-   * Get answer for chatbot question
-   * @param sessionId
-   * @param query
-   * @returns
-   */
+  
+
   async getAnswer(sessionId: string, query: string, debug = false) {
-    //
-    // Checks and Validations
-    //
+    
+    
+    
 
     const sessionData = await this.getChatSessionDataFromCache(sessionId);
     if (!sessionData) {
       throw new HttpException('Invalid Session Id', HttpStatus.NOT_FOUND);
     }
 
-    // The maxMessages field is introduced newly and will not be available for old sessions. So,
-    // if the maxMessages field is not available, then we will fetch the subscription plan for the user
-    // and get the maxMessages from there. Then save it to the sessionData for future use.
+    
+    
+    
     let maxMessages = sessionData.subscriptionData.maxMessages;
 
     if (!maxMessages) {
@@ -529,11 +512,11 @@ export class ChatbotService {
       );
 
       maxMessages = subscriptionPlan.maxMessages;
-      // update the sessionData with the maxMessages
+      
       sessionData.subscriptionData.maxMessages = maxMessages;
     }
 
-    // Check usage limits for user
+    
     const allowUsage = await this.isUseUnderUsageLimits(
       sessionData.userId,
       sessionData.subscriptionData.maxMessages,
@@ -564,7 +547,7 @@ export class ChatbotService {
     const isShortKeywordQuery =
       query.trim().split(/\s+/).filter(Boolean).length <= 2;
 
-    // Fast deterministic path for short keyword queries.
+    
     if (isShortKeywordQuery) {
       const deterministic = await this.getDeterministicKnowledgeAnswer(kbId, query);
       if (deterministic) {
@@ -587,9 +570,9 @@ export class ChatbotService {
     }
 
     try {
-      //
-      // Get top N matching chunks for current query
-      //
+      
+      
+      
       const topChunks = await this.withTimeout(
         this.openaiChatbotService.getTopNChunks(
           kbId,
@@ -602,9 +585,9 @@ export class ChatbotService {
         'Context search timeout',
       );
 
-      //
-      // Get answer for query
-      //
+      
+      
+      
       const prevMessages = sessionData.messages.slice(-2);
 
       let answer = await this.withTimeout(
@@ -628,13 +611,13 @@ export class ChatbotService {
         fallbackAnswer,
       );
 
-      // Retry once with broader retrieval when model returned only default/fallback answer.
+      
       if (isDefaultLikeAnswer) {
         const retryTopChunks = await this.withTimeout(
           this.openaiChatbotService.getTopNChunks(
             kbId,
             query,
-            0, // broaden retrieval for retry
+            0, 
             sessionData.customKeys,
             sessionData.embeddingModel,
           ),
@@ -662,7 +645,7 @@ export class ChatbotService {
           'Answer generation timeout (retry)',
         );
 
-        // If still fallback-like, return a deterministic answer from trained page text.
+        
         const stillDefaultLike = this.isFallbackLikeResponse(
           answer?.response,
           fallbackAnswer,
@@ -681,7 +664,7 @@ export class ChatbotService {
             fallbackAnswer,
           );
           if (!stillDefaultAfterChunk) {
-            // chunk fallback already produced deterministic answer
+            
           } else {
           const dsAnswer = await this.getDeterministicKnowledgeAnswer(kbId, query);
           if (dsAnswer) {
@@ -755,9 +738,9 @@ export class ChatbotService {
   }
 
   async saveManualChat(sessionId: string, chatData: ChatQueryAnswer) {
-    //
-    // Checks and Validations
-    //
+    
+    
+    
 
     const sessionData = await this.getChatSessionDataFromCache(sessionId);
     if (!sessionData) {
@@ -780,25 +763,21 @@ export class ChatbotService {
     return sessionData.knowledgebaseId;
   }
 
-  /**
-   * Get chatbot answer as SSE stream
-   * @param sessionId
-   * @param query
-   * @returns
-   */
+  
+
   async getAnswerStream(sessionId: string, query: string) {
-    //
-    // Checks and Validations
-    //
+    
+    
+    
 
     const sessionData = await this.getChatSessionDataFromCache(sessionId);
     if (!sessionData) {
       throw new HttpException('Invalid Session Id', HttpStatus.NOT_FOUND);
     }
 
-    // The maxMessages field is introduced newly and will not be available for old sessions. So,
-    // if the maxMessages field is not available, then we will fetch the subscription plan for the user
-    // and get the maxMessages from there. Then save it to the sessionData for future use.
+    
+    
+    
     let maxMessages = sessionData.subscriptionData.maxMessages;
 
     if (!maxMessages) {
@@ -810,11 +789,11 @@ export class ChatbotService {
       );
 
       maxMessages = subscriptionPlan.maxMessages;
-      // update the sessionData with the maxMessages
+      
       sessionData.subscriptionData.maxMessages = maxMessages;
     }
 
-    // Check usage limits for user
+    
     const allowUsage = await this.isUseUnderUsageLimits(
       sessionData.userId,
       sessionData.subscriptionData.maxMessages,
@@ -845,9 +824,9 @@ export class ChatbotService {
     }
 
     try {
-      //
-      // Get top N matching chunks for current query
-      //
+      
+      
+      
       const topChunks = await this.openaiChatbotService.getTopNChunks(
         kbId,
         query,
@@ -856,15 +835,15 @@ export class ChatbotService {
         sessionData.embeddingModel,
       );
 
-      // Fetch previous messages from bot
+      
       const prevMessages = this.getPreviousNMessagesFromBot(
         sessionData.messages,
         2,
       );
 
-      //
-      // Get answer for query
-      //
+      
+      
+      
       const answerStream = await this.openaiChatbotService.getAiAnswerStream(
         sessionData.kbName,
         query,
@@ -889,7 +868,7 @@ export class ChatbotService {
             .emit('chat_broadcast', msg);
           await this.updateSessionDataWithNewMsg(sessionData, msg);
 
-          // Call webhook with msg
+          
           this.webhookService.callWebhook(sessionData.userId, {
             event: WebhookEventType.CHATBOT_MSG,
             payload: {
@@ -918,7 +897,7 @@ export class ChatbotService {
         .filter((c) => c.score > SOURCES_FILTER_THRESHOLD)
         .map((c) => ({ url: c.url, title: c.title }));
 
-      // Transfer the stream into MessageEvent which is what sse wants
+      
       return answerStream.pipe(
         map((value) => {
           const newVal: MessageEvent = {
@@ -964,16 +943,11 @@ export class ChatbotService {
     }
   }
 
-  /**
-   * Retrieves the previous N messages from the bot.
-   *
-   * @param messages - An array of ChatQueryAnswer objects representing the chat messages.
-   * @param n - The maximum number of messages to retrieve.
-   * @returns An array of ChatQueryAnswer objects representing the previous N messages from the bot.
-   */
+  
+
   getPreviousNMessagesFromBot(messages: ChatQueryAnswer[], n: number) {
-    // if last message is of type 'MANUAL' or 'DIVIDER' then return empty array
-    // else return the last Max(n, 0) continues messages of type 'BOT'
+    
+    
     const prevMessages = [];
     if (
       messages.length <= 0 ||
@@ -991,11 +965,8 @@ export class ChatbotService {
     return prevMessages;
   }
 
-  /**
-   * Create a new chat session for a knowledgebase
-   * @param knowledgebaseId
-   * @returns
-   */
+  
+
   async createChatSession(
     knowledgebaseId: string,
     userData?: any,
@@ -1012,20 +983,20 @@ export class ChatbotService {
       throw new HttpException('Invalid Knowledgebase Id', HttpStatus.NOT_FOUND);
     }
 
-    // Check if knowledgebase id is valid
+    
     const kb = await this.kbDbService.getKnowledgebaseById(kbId);
     if (!kb) {
       throw new HttpException('Invalid Knowledgebase Id', HttpStatus.NOT_FOUND);
     }
 
-    // IF its a demo knowledgebase then the user should be authenticated
-    // ie. Demo chatbots are not available to the public, but only to
-    // authenticated users inside the app
+    
+    
+    
     if (kb.isDemo && !isAuthenticated) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
 
-    // Check if knowledgebase is ready
+    
     if (kb.status !== KnowledgebaseStatus.READY) {
       throw new HttpException(
         'Knowledgebase not ready!',
@@ -1033,13 +1004,13 @@ export class ChatbotService {
       );
     }
 
-    // Get the subscription plan for the user to which the kb belongs
+    
     const user = await this.userService.findUserById(kb.owner.toString());
     const subscriptionPlan = this.subPlanInfoService.getSubscriptionPlanInfo(
       user.activeSubscription,
     );
 
-    // If there is a promptId associated with the KB, fetch the custom prompt
+    
     const prompt = kb.prompt;
 
     const sessionData: ChatSession = {
@@ -1084,11 +1055,8 @@ export class ChatbotService {
     return sessionId.toString();
   }
 
-  /**
-   * Switches the current chat session to either manual or automated mode based on the provided flag.
-   * @param sessionId The unique identifier of the chat session to switch.
-   * @param isManual A boolean flag indicating whether to switch the session to manual mode (true) or automated mode (false).
-   */
+  
+
   async switchChatSession(sessionId: string, isManual: boolean) {
     const sessionData = await this.getChatSessionDataFromCache(sessionId);
 
@@ -1146,11 +1114,8 @@ export class ChatbotService {
     ]);
   }
 
-  /**
-   * API to test given propmpt
-   * @param data
-   * @returns
-   */
+  
+
   async testPrompt(data: PromptTestDTO) {
     return this.openaiChatbotService.getChatGptPrompt(
       data.chatbotName,
@@ -1169,16 +1134,10 @@ export class ChatbotService {
     );
   }
 
-  /*********************************************************
-   * CHAT SESSION APIS
-   *********************************************************/
+  
 
-  /**
-   * Get data for given chat session
-   * @param user
-   * @param sessionId
-   * @returns
-   */
+  
+
   async getChatSessionData(user: UserSparse, sessionId: string) {
     const session: ChatSessionSparse =
       await this.kbDbService.getChatSessionSparseById(new ObjectId(sessionId));
@@ -1196,16 +1155,12 @@ export class ChatbotService {
     return session;
   }
 
-  /**
-   * Retrieves the chat session messages by session ID.
-   * @param sessionId - The ID of the chat session.
-   * @returns A Promise that resolves to a ChatSessionMessageSparse object.
-   * @throws HttpException with status code HttpStatus.NOT_FOUND if the session ID is invalid or the session is not found.
-   */
+  
+
   async getChatSessionsMessagesById(
     sessionId: string,
   ): Promise<ChatSessionForWidget> {
-    //validate sessionId
+    
     let sessionObjId: ObjectId;
     try {
       sessionObjId = new ObjectId(sessionId);
@@ -1277,10 +1232,7 @@ export class ChatbotService {
     );
   }
 
-  /**
-   * Remove session
-   * @param sessionId
-   */
+  
 
   async deleteSessionBySession(user: UserSparse, sessionId: string) {
     const session: ChatSessionSparse =
@@ -1303,10 +1255,8 @@ export class ChatbotService {
     }
   }
 
-  /**
-   * Mark all the messages in the Session as Read
-   * @param sessionId
-   */
+  
+
   async markSessionAsRead(user: UserSparse, sessionId: string) {
     const session: ChatSessionSparse =
       await this.kbDbService.getChatSessionSparseById(new ObjectId(sessionId));
@@ -1330,11 +1280,8 @@ export class ChatbotService {
     }
   }
 
-  /**
-   * Mark all messages before the given msg as unread
-   * @param sessionId
-   * @param ts
-   */
+  
+
   async markSessionAsUnread(user: UserSparse, sessionId: string) {
     const session: ChatSessionSparse =
       await this.kbDbService.getChatSessionSparseById(new ObjectId(sessionId));
@@ -1358,12 +1305,8 @@ export class ChatbotService {
     }
   }
 
-  /**
-   * Set Feedback for Chat Session Msg by Msg Idx
-   * @param sessionId
-   * @param msgIdx
-   * @param feedback
-   */
+  
+
   async setSessionMessageFeedback(
     sessionId: string,
     msgIdx: number,
@@ -1380,25 +1323,16 @@ export class ChatbotService {
     }
   }
 
-  /**
-   * Calculates the total number of tokens based on the number of question tokens, answer tokens, and the model.
-   *
-   * Input token usage ratio for gpt-3.5 : gpt-4 : gpt-4-turbo = 1 : 60 : 20
-   * Output token usage ratio for gpt-3.5 : gpt-4 : gpt-4-turbo = 1 : 40 : 20
-   *
-   * @param qTokens The number of question tokens.
-   * @param aTokens The number of answer tokens.
-   * @param model The model used for token calculation.
-   * @returns The total number of tokens.
-   */
+  
+
   calculateTotalTokens(qTokens: number, aTokens: number, model: string) {
     switch (model) {
-      case 'gpt-4-0613': // GPT-4
+      case 'gpt-4-0613': 
         return qTokens * 60 + aTokens * 40;
-      case 'gpt-4-turbo-preview': // GPT-4-Turbo
+      case 'gpt-4-turbo-preview': 
         return qTokens * 20 + aTokens * 20;
-      case 'gpt-3.5-turbo': // GPT-3.5
-      case 'gpt-4o': // GPT-4o
+      case 'gpt-3.5-turbo': 
+      case 'gpt-4o': 
       default:
         return qTokens + aTokens;
     }

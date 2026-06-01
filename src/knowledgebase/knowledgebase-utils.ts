@@ -31,10 +31,10 @@ export function checkUserPermissionForKb(
     throw new HttpException('Invalid Knowledgebase Id', HttpStatus.NOT_FOUND);
   }
   if (!user._id.equals(kb.owner)) {
-    // Check participants if the current user is not the kb owner
-    // Assuming the owner should have all the admin access
+    
+    
     if (kb.participants) {
-      // Fetch current user from participants list
+      
       const userRoleObj = kb.participants.find(
         (obj) => obj.id.toString() === user._id.toString(),
       );
@@ -42,7 +42,7 @@ export function checkUserPermissionForKb(
         const userPermissions = rolePermissions[userRoleObj.role];
 
         if (requiredPermissions) {
-          // Check if the user's permissions include all required permissions
+          
           const hasPermission = requiredPermissions.every(
             (permission: UserPermissions) =>
               userPermissions.includes(permission),

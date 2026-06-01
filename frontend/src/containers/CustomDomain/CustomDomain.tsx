@@ -38,7 +38,6 @@ interface CustomDomainProps {
 	defaultCustomDomain: string;
 }
 
-
 export const CustomDomain = ({
 	chatBotId,
 	defaultCustomDomain,
@@ -120,7 +119,7 @@ export const CustomDomain = ({
 								>
 									{({ field, form }: any) => (
 										<FormControl
-											// isRequired
+											
 											mb="8"
 										>
 											<FormLabel
@@ -139,7 +138,7 @@ export const CustomDomain = ({
 													setDomainName(e.target.value);
 													field.onChange(e);
 												}}
-												// required
+												
 												placeholder="chat.timemaster.ai"
 											/>
 											<FormHelperText fontSize="smaller" color="gray.400">

@@ -15,8 +15,8 @@ const CustomDropzone = React.forwardRef(({name, label, helperText}: CustomDropzo
     const [field, meta, helpers] = useField(name);
 
     const handleDrop = (acceptedFiles: File[]) => {
-        // Check if any file size is greater than 5MB
-        const hasOversizedFile = acceptedFiles.some((file) => file.size > 5 * 1024 * 1024); // 5MB in bytes
+        
+        const hasOversizedFile = acceptedFiles.some((file) => file.size > 5 * 1024 * 1024); 
 
         if (hasOversizedFile) {
             helpers.setError('One or more files exceed the maximum allowed size of 5MB');
@@ -35,21 +35,21 @@ const CustomDropzone = React.forwardRef(({name, label, helperText}: CustomDropzo
     };
 
     const clearFiles = () => {
-        helpers.setValue([]); // Clear the files
+        helpers.setValue([]); 
     };
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop: handleDrop,
         accept: {
-            //'text/html': ['.html'],
+            
             'application/pdf': ['.pdf'],
-            // 'application/vdn.openxmlformats-officedocument.wordprocessingml.document': ['.docx', '.doc'],
-            // 'application/ms-word': ['.docx', '.doc'],
-            // 'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx']
+            
+            
+            
         },
         multiple: true,
-        // maxFiles: 5,
-        // maxSize: 1024 * 1024 * 5,
+        
+        
     });
 
     React.useImperativeHandle(innerRef, () => ({
@@ -62,7 +62,7 @@ const CustomDropzone = React.forwardRef(({name, label, helperText}: CustomDropzo
 
     return (
         <Box>
-            {/* <Text mb={2} color="gray.700" fontSize="sm">{label}</Text> */}
+            {}
             <Box
                 w="100%"
                 justify="center"

@@ -51,23 +51,23 @@ export class WebSocketChatGateway
   }
 
   async handleConnection(socket: Socket) {
-    // A client has connected
+    
     const query = socket.handshake.query;
     const sessionId: any = query.id;
     const knowledgeBaseId: any = query.knowledgeBaseId;
 
-    // Set session knowledgeBaseId mapping in REDIS for easy fetching
+    
     this.redisClient.hset(SESSION_KB_MAPPING, sessionId, knowledgeBaseId);
 
     if (query.isAdmin) {
-      // this.logger.log('Admin joined:', query);
-      // set online admins in redis
+      
+      
       this.redisClient.hset(`onlineAdmins_${knowledgeBaseId}`, sessionId, 1);
-      // join knowledgeBase room
+      
       socket.join(knowledgeBaseId);
     } else {
-      // this.logger.log('New client joined:', query);
-      // join session chat room
+      
+      
       socket.join(sessionId);
 
       socket.to(knowledgeBaseId).emit('user_assigned', sessionId);
@@ -75,23 +75,23 @@ export class WebSocketChatGateway
   }
 
   async handleDisconnect(socket: Socket) {
-    // A client has disconnected
+    
     const query = socket.handshake.query;
     const sessionId: any = query.id;
 
     if (query.isAdmin) {
       const knowledgeBaseId = query.knowledgeBaseId;
-      // remove online admin from redis
+      
       this.redisClient.hdel(`onlineAdmins_${knowledgeBaseId}`, sessionId);
-      // this.logger.log('Admin disconnected:', query);
+      
     } else {
-      // this.logger.log('Client disconnected:', query);
+      
     }
   }
 
   @SubscribeMessage('admin_chat')
   async onAdminChat(client: Socket, msgData: ChatQueryAnswer) {
-    // this.logger.log('New admin chat message:', msgData);
+    
 
     client.to(msgData.sessionId).emit('user_chat', msgData);
     const kbId = await this.redisClient.hget(
@@ -107,7 +107,7 @@ export class WebSocketChatGateway
 
   @SubscribeMessage('user_chat')
   async onUserChat(client: Socket, msgData: ChatQueryAnswer) {
-    // this.logger.log('New user chat message:', msgData);
+    
 
     const kbId = await this.redisClient.hget(
       SESSION_KB_MAPPING,
@@ -118,7 +118,7 @@ export class WebSocketChatGateway
       client.to(kbId).emit('admin_chat', msgData);
     }
 
-    // save the chat in db
+    
     const knowledgeBaseId = await this.chatbotService.saveManualChat(
       msgData.sessionId,
       msgData,
@@ -130,8 +130,8 @@ export class WebSocketChatGateway
       );
 
       if (Object.keys(onlineAdmins).length === 0) {
-        // send email if the admin is offline
-        // this.logger.log('No online admins online!!!!');
+        
+        
         this.offlineMsgService.sendEmailForOfflineManualMessage(
           knowledgeBaseId,
           msgData.sessionId,
@@ -139,8 +139,8 @@ export class WebSocketChatGateway
         );
       }
     } else {
-      // Chat session is not present
-      // sending custom message to user for initiation a new session
+      
+      
       const msg = { type: 'SESSION_NOT_FOUND', msg: '', ts: new Date() };
       client.to(msgData.sessionId).emit('custom_message', msg);
     }

@@ -270,7 +270,6 @@ export const ChatbotList = () => {
 		);
 	}, [createChatBot, createChatBotLoading, chatbotsList, chatbotsLoaded, getNoDataIcon, onMenuItemClick]);
 
-
 	return (
 		<>
 		<Box
@@ -329,7 +328,7 @@ export const ChatbotList = () => {
 							type='submit'
 							colorScheme='green'
 							onClick={handleRename}
-							disabled={!chatbotName} // Disable the button if chatbotName is empty
+							disabled={!chatbotName} 
 						>
 							Өзгерту
 						</Button>

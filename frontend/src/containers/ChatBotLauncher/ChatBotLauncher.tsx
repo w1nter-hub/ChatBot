@@ -37,4 +37,3 @@ const ChatBotLauncher = ({ backgroundColor, fontColor, launcherIcon }: ChatBotLa
 }
 
 export default ChatBotLauncher;
-

@@ -1,7 +1,3 @@
-/** **************************************************
- * TYPES
- *************************************************** */
-
 import { Subscription } from '../user/user.schema';
 
 export enum LemonSqueezyWebhookEventName {

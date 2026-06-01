@@ -18,7 +18,7 @@ export const MONGODB = 'MONGODB';
           await client.connect();
           const db = client.db(dbName);
 
-          // Create indexes
+          
           await db
             .collection('users')
             .createIndex({ email: 1 }, { unique: true });

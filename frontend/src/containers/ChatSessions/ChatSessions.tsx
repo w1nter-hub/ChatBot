@@ -17,7 +17,6 @@ import styles from './ChatSessions.module.scss';
 import classNames from 'classnames';
 import { Paginator } from "../../widgets/Paginator/Paginator";
 
-
 export const ChatSessions = ({
 	chatData,
 	handlePageClick,
@@ -35,7 +34,6 @@ export const ChatSessions = ({
 		setSelectedChatData(chatData.results[0] as ChatData)
 	}, [chatData])
 
-
 	const getTimeAgo = React.useCallback((date) => {
 		return formatDistance(new Date(date), new Date(), {
 			addSuffix: true,
@@ -43,7 +41,6 @@ export const ChatSessions = ({
 	}, []);
 
 	const [isLoading, setIsLoading] = React.useState<boolean>(false);
-
 
 	React.useEffect(() => {
 		let ignore = false;
@@ -92,7 +89,6 @@ export const ChatSessions = ({
 	}
 	return (
 		<Flex w="100%">
-
 
 			<Box className={styles.listCont} pos="relative">
 				<Box className={styles.listContInner} pos="relative">

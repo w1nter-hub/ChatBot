@@ -36,14 +36,11 @@ export const OfflineMessages = ({
 		setSelectedChatData(chatData.results[0] || {})
 	}, [chatData])
 
-
 	const getTimeAgo = React.useCallback((date) => {
 		return formatDistance(new Date(date), new Date(), {
 			addSuffix: true,
 		});
 	}, []);
-
-
 
 	if (!chatData.results.length) {
 		return <VStack
@@ -75,7 +72,6 @@ export const OfflineMessages = ({
 	}
 	return (
 		<Flex w="100%">
-
 
 			<Box className={styles.listCont} pos="relative">
 				<Box className={styles.listContInner} pos="relative">

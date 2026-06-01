@@ -3,8 +3,6 @@ import {
 	Button,
 } from '@chakra-ui/react';
 
-
-
 import { GoogleIcon } from '../../components/Icons/Google';
 import { useGoogleLogin } from '@react-oauth/google';
 
@@ -18,23 +16,18 @@ const LoginWithGoogle = (
 	{ responseGoogleSuccess, responseGoogleFailure, buttonText }: LoginWithGoogleProps
 ) => {
 
-
 	const handleResponseGoogleSuccess = React.useCallback((googleResponse: any) => {
 		responseGoogleSuccess(googleResponse);
 	}, [responseGoogleSuccess])
-
-
 
 	const handleResponseGoogleFailure = React.useCallback((error) => {
 		responseGoogleFailure(error)
 	}, [responseGoogleFailure])
 
-
 	const googleSignIn = useGoogleLogin({
 		onSuccess: handleResponseGoogleSuccess,
 		onError: handleResponseGoogleFailure
 	});
-
 
 	return (
 		<Button

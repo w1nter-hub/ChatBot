@@ -23,7 +23,6 @@ import { FiPlus } from 'react-icons/fi';
 import { addTrainingData } from "../../services/knowledgebaseService";
 import MDEditor from '@uiw/react-md-editor';
 
-
 export const AddTrainingData = ({
 	initialAnswer,
 	initialQuestion,
@@ -41,7 +40,6 @@ export const AddTrainingData = ({
 	const [question, setQuestion] = React.useState<string>('');
 
 	const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
-
 
 	const handleAnswerChange = React.useCallback((value) => {
 		setAnswer(value);

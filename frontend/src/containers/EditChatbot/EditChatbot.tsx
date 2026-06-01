@@ -47,7 +47,6 @@ import Analytics from "../Analytics/Analytics";
 import styles from "./EditChatbot.module.scss";
 import { QOLDAUAI_WIDGET_URL, baseURL } from '../../config';
 
-
 export function validateEmailAddress(email: string) {
 	return email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);
 }
@@ -66,7 +65,6 @@ type Steps =
 interface MatchParams {
 	chatbotId: string;
 }
-
 
 export type EditChatbotProps = RouteComponentProps<MatchParams>;
 
@@ -89,7 +87,6 @@ const EditChatbot = (props: EditChatbotProps) => {
 	const [chatBot, setChatbot] = React.useState<Knowledgebase>({} as Knowledgebase);
 	const [defaultCrauledData, setDefaultCrauledData] = React.useState<any>();
 
-
 	const [currentStep, setCurrentStep] = React.useState<Steps>(
 		 defaultStep || "product-setup"
 	);
@@ -107,11 +104,9 @@ const EditChatbot = (props: EditChatbotProps) => {
 		}
 	}, []);
 
-
 	const { isOpen: isDeleteDialogOpen, onOpen: onDeleteDialogOpen, onClose: onDeleteDialogClose } = useDisclosure();
 
 	const cancelRef = React.useRef<any>()
-
 
 	const [isChatLoading, setIsChatLoading] = React.useState<boolean>(false);
 
@@ -245,7 +240,6 @@ const EditChatbot = (props: EditChatbotProps) => {
 
 			startEmbeding(chatBot._id)
 
-
 		} catch (error) {
 			setIsSubmitting(false);
 			const errorData = error?.response?.data?.message
@@ -267,7 +261,7 @@ const EditChatbot = (props: EditChatbotProps) => {
 					setUser(response.data);
 				}
 				const response = await fetcKnowledgebase(props.match.params.chatbotId);
-				//generateEmbeddings(response.data._id);
+				
 				const chatBotData = response.data;
 				chatBotData.chatWidgeData = chatBotData.chatWidgeData || {
 					backgroundColor: chatWidgetDefaultValues.backgroundColor,
@@ -329,7 +323,6 @@ const EditChatbot = (props: EditChatbotProps) => {
 	}, [props.match.params.chatbotId, startEmbeding]);
 
 	const [offlineMessages, setOfflineMessages] = React.useState<OfflineMessagePagination>();
-
 
 	useEffect(() => {
 		async function fetchData() {
@@ -441,9 +434,7 @@ console.log(permissions.get(), 'permissionspermissions')
 			onDeleteDialogClose();
 		}
 
-
 	}, [onDeleteDialogClose, props.match.params.chatbotId, questionsToDelete, toast, customTrainingDataPage]);
-
 
 	const goToStep = React.useCallback((step: Steps) => {
 		setCurrentStep(step);
@@ -476,39 +467,36 @@ console.log(permissions.get(), 'permissionspermissions')
 
 	
 
-
 	const getAddToWebsiteContent = React.useCallback(() => {
-		// if (user && user?.subscriptionData?.name === 'FREE') {
-		// 	return <VStack
-		// 		alignItems="center"
-		// 		direction="column"
-		// 		justifyContent="center"
-		// 		pt={32}
-		// 		pb={32}
-		// 		spacing="9"
-		// 	>
-		// 		<NoDataSubscribeIcon width="auto" height="180px" />
-		// 		<Box textAlign="center">
-		// 			<Heading
-		// 				maxW="580px"
-		// 				fontSize="xl"
-		// 				fontWeight="500"
-		// 				as="h3"
-		// 				mb="4"
-		// 				color="gray.500"
-		// 				lineHeight="medium"
-		// 				textAlign="center"
-		// 			>
-		// 				Upgrade to a paid plan to add chatbot to your website
-		// 			</Heading>
-		// 			<Link to="/app/settings/subscription">
-		// 				<Button variant='outline' colorScheme='blue' size='md'>Subscribe Now</Button>
-		// 			</Link>
-		// 		</Box>
-		// 	</VStack>
-		// }
-
-
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
 		const resolvedBaseUrl = baseURL || window.location.origin;
 		const encodedBaseUrl = encodeURIComponent(resolvedBaseUrl);
@@ -745,8 +733,6 @@ console.log(permissions.get(), 'permissionspermissions')
 		</>
 	}, [customTrainingDataPage?.results, customTrainingDataPage.pages, isCustomDataLoading, handleCustomDataPageChange, isCustomDataDetailsLoading, selectedTrainingData, props.match.params.chatbotId, handleTrainingDataUpdate, deleteCustomDataLoading, questionsToDelete, onDeleteDialogOpen]);
 
-
-
 	const getExcludedPaths = React.useCallback(() => {
 		if (!chatBot._id || !chatBot.websiteData) return;
 		const excludedPaths = chatBot.websiteData.exclude.join(',')
@@ -818,7 +804,6 @@ console.log(permissions.get(), 'permissionspermissions')
 		if(!user._id) return null;
 		return <ChatSessionsNew userId={user._id as unknown as string} chatbotId={props.match.params.chatbotId}  />
 	}, [props.match.params.chatbotId, user._id])
-
 
 	const getMainComponent = React.useCallback(() => {
 		if (!chatBot._id) {
@@ -1222,10 +1207,9 @@ console.log(permissions.get(), 'permissionspermissions')
 									<path d="M2 7L10.1649 12.7154C10.8261 13.1783 11.1567 13.4097 11.5163 13.4993C11.8339 13.5785 12.1661 13.5785 12.4837 13.4993C12.8433 13.4097 13.1739 13.1783 13.8351 12.7154L22 7M6.8 20H17.2C18.8802 20 19.7202 20 20.362 19.673C20.9265 19.3854 21.3854 18.9265 21.673 18.362C22 17.7202 22 16.8802 22 15.2V8.8C22 7.11984 22 6.27976 21.673 5.63803C21.3854 5.07354 20.9265 4.6146 20.362 4.32698C19.7202 4 18.8802 4 17.2 4H6.8C5.11984 4 4.27976 4 3.63803 4.32698C3.07354 4.6146 2.6146 5.07354 2.32698 5.63803C2 6.27976 2 7.11984 2 8.8V15.2C2 16.8802 2 17.7202 2.32698 18.362C2.6146 18.9265 3.07354 19.3854 3.63803 19.673C4.27976 20 5.11984 20 6.8 20Z" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 								</svg>
 
-
 								Офлайн хабарламалар
 							</ListItem>
-							{/* You can also use custom icons from react-icons */}
+							{}
 							{access.isOwner || access.isAdmin || access.isEditor ?<ListItem
 								display="flex"
 								alignItems="center"
@@ -1258,7 +1242,6 @@ console.log(permissions.get(), 'permissionspermissions')
 								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M22 9H2M14 17.5L16.5 15L14 12.5M10 12.5L7.5 15L10 17.5M2 7.8L2 16.2C2 17.8802 2 18.7202 2.32698 19.362C2.6146 19.9265 3.07354 20.3854 3.63803 20.673C4.27976 21 5.11984 21 6.8 21H17.2C18.8802 21 19.7202 21 20.362 20.673C20.9265 20.3854 21.3854 19.9265 21.673 19.362C22 18.7202 22 17.8802 22 16.2V7.8C22 6.11984 22 5.27977 21.673 4.63803C21.3854 4.07354 20.9265 3.6146 20.362 3.32698C19.7202 3 18.8802 3 17.2 3L6.8 3C5.11984 3 4.27976 3 3.63803 3.32698C3.07354 3.6146 2.6146 4.07354 2.32698 4.63803C2 5.27976 2 6.11984 2 7.8Z" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 								</svg>
-
 
 								Сайтқа қосу
 							</ListItem>: null}

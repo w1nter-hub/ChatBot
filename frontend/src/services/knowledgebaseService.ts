@@ -259,7 +259,6 @@ export async function setCustomDomain(knowledgebaseId: string, domain: string): 
 	});
 }
 
-
 export async function getChatSessions(id: string, page: string): Promise<AxiosResponse<ChatSessionPagination>> {
 	return await axios({
 		baseURL: baseURL,

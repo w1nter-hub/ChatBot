@@ -3,7 +3,7 @@ import { LauncherIconsSVGs } from "./LauncherIconSVGs";
 export function getDomainFromUrl(url: string) {
     if (!url) return '';
     const matches = url.match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i);
-    const domain = matches && matches[1]; // domain will be null if no match is found
+    const domain = matches && matches[1]; 
     return (domain || '').replace('www.', '');
 }
 
@@ -17,42 +17,42 @@ export function getBrowserName(userAgent: string) {
 
   if(!userAgent) return 'Other';
 
-  // Detect ARC Welder
+  
   if (userAgent.indexOf('ARC') > -1) {
     return 'ARC Welder';
   }
 
-  // Detect Chrome
+  
   if (userAgent.indexOf("Chrome") > -1 && userAgent.indexOf("Edg") === -1 && userAgent.indexOf("OPR") === -1) {
     return "Google Chrome";
   }
 
-  // Detect Firefox
+  
   if (userAgent.indexOf("Firefox") > -1) {
     return "Mozilla Firefox";
   }
 
-  // Detect Safari
+  
   if (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") === -1) {
     return "Safari";
   }
 
-  // Detect Internet Explorer or Legacy Edge
+  
   if (userAgent.indexOf("MSIE") > -1 || userAgent.indexOf("Trident") > -1) {
     return "Microsoft Internet Explorer";
   }
 
-  // Detect Edge (Chromium)
+  
   if (userAgent.indexOf("Edg") > -1) {
     return "Microsoft Edge";
   }
 
-  // Detect Opera
+  
   if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) {
     return "Opera";
   }
 
-  // Other
+  
   return 'Other';
 }
 
@@ -121,7 +121,6 @@ export const chatWidgetDefaultValues = {
   formTryAgainBtnLabel: "Қайта көру",
   model: 'gpt-3.5-turbo'
 };
-
 
 export function formatNumber(num:number, precision = 0) {
   const map = [

@@ -18,12 +18,8 @@ class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  /**
-   * Validates the user from the payload
-   * @param payload
-   * @param done
-   * @returns
-   */
+  
+
   async validate(payload: JwtPayload, done: VerifiedCallback) {
     const user = await this.authService.validateJwtPayload(payload);
 

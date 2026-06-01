@@ -3,10 +3,6 @@ import { SubscriptionPlanInfo } from '../subscription/subscription.const';
 import { UserMonthlyUsage } from '../user/user.schema';
 import { CrawlerStats } from '../importers/crawler/crawlee/crawler.types';
 
-/** **************************************************
- * KNOWLEDGEBASE
- *************************************************** */
-
 export const KNOWLEDGEBASE_COLLECTION = 'knowledgebase';
 
 export enum KnowledgebaseStatus {
@@ -59,15 +55,15 @@ export interface Knowledgebase {
   chatWidgeData?: any;
   owner: ObjectId;
   participants: ParticipantsData[];
-  // Alternate email for knowledgebase
+  
   adminEmail?: string;
   createdAt: Date;
   updatedAt: Date;
-  // Custom prompt fields
+  
   model?: string;
   defaultAnswer?: string;
   prompt?: string;
-  // Custom domain
+  
   customDomain?: string;
   embeddingModel?: EmbeddingModel;
 }
@@ -82,10 +78,6 @@ export type KnowledgebaseSparse = Pick<
   | 'owner'
   | 'participants'
 >;
-
-/*********************************************************
- * KB DATA STORE
- *********************************************************/
 
 export const KB_DATASTORE_COLLECTION = 'kbDataStore';
 
@@ -115,13 +107,8 @@ export interface KbDataStore {
 
 export type KbDataStoreUrl = Pick<KbDataStore, '_id' | 'url'>;
 
-/*********************************************************
- * CHUNKS
- *********************************************************/
-
 export const CHARS_PER_TOKEN = 4;
 
-// CHUNK SIZE = 1500 tokens
 export const CHUNK_SIZE = 1500 * CHARS_PER_TOKEN;
 
 export const CHUNK_COLLECTION = 'chunks';
@@ -144,22 +131,14 @@ export interface Chunk {
   updatedAt: Date;
 }
 
-/*********************************************************
- * KB EMBEDDINGS
- *********************************************************/
-
 export const KB_EMBEDDING_COLLECTION = 'kbEmbeddings';
 export interface KbEmbedding {
-  _id?: ObjectId; // Same as chunkId
+  _id?: ObjectId; 
   knowledgebaseId: ObjectId;
   embeddings: number[];
   type: DataStoreType;
   embeddingModel?: EmbeddingModel;
 }
-
-/*********************************************************
- * CHAT SESSION
- *********************************************************/
 
 export enum ChatAnswerFeedbackType {
   BAD,
@@ -249,10 +228,6 @@ export interface ChatMessageWebhookPayload {
     updatedAt: Date;
   };
 }
-
-/*********************************************************
- * PROMPT
- *********************************************************/
 
 export const PROMPT_COLLECTION = 'prompts';
 

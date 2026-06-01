@@ -20,7 +20,6 @@ import { PromptService } from '../prompt/prompt.service';
 import { DEFAULT_CHATGPT_PROMPT } from './openaiChatbot.constant';
 import { CustomKeyService } from '../custom-key.service';
 
-/** Cosine similarity between two embedding vectors (same logic as workers/cosine_similarity.py). */
 function cosineSimilarityVec(a: number[], b: number[]): number {
   if (!a?.length || !b?.length || a.length !== b.length) {
     return Number.NaN;
@@ -85,25 +84,17 @@ export class OpenaiChatbotService {
     return this.customKeyService.decryptCustomKeys(customKeys?.keys);
   }
 
-  /** *******************************************
-   * EMBEDDINGS SEARCH RELATED
-   ******************************************** */
+  
 
-  /**
-   * Check if chunk is valid for working as embedding
-   * @param chunk
-   * @returns
-   */
+  
+
   isValidChunk(chunk: Chunk): boolean {
     const totalChunk = chunk.title + ' ' + chunk.chunk;
     return totalChunk.length < CHUNK_SIZE;
   }
 
-  /**
-   * Get embeddings for a new chunk
-   * @param chunk
-   * @returns
-   */
+  
+
   async getEmbeddingsForChunk(
     chunk: Chunk,
     customKeys?: CustomKeyData,
@@ -117,7 +108,7 @@ export class OpenaiChatbotService {
       ? `Title: ${chunk.title.trim()}; Content: ${chunk.chunk.trim()}`
       : `Content: ${chunk.chunk.trim()}`;
 
-    // Generate embeddings for chunk
+    
     const embeddings = await retryWithBackoff(
       async () => {
         const embeddings = await this.openaiService.getEmbedding(
@@ -128,17 +119,14 @@ export class OpenaiChatbotService {
         return embeddings;
       },
       undefined,
-      10, // max 10 retries (102 sec)
+      10, 
     );
 
     return embeddings;
   }
 
-  /**
-   * Generate and add embedding for new chunk to KB
-   * @param kbId
-   * @param chunk
-   */
+  
+
   async addEmbeddingsForChunk(
     kbId: ObjectId,
     chunk: Chunk,
@@ -151,7 +139,7 @@ export class OpenaiChatbotService {
       embeddingModel,
     );
 
-    // Add embedding for new chunk into embeddings collection
+    
     await this.kbDbService.insertEmbeddingForChunk({
       _id: chunk._id,
       knowledgebaseId: kbId,
@@ -176,20 +164,15 @@ export class OpenaiChatbotService {
       embeddingModel,
     );
 
-    // Add embedding for new chunk into embeddings collection
+    
     await this.kbDbService.updateEmbeddingForChunk(chunk._id, embeddings);
     await this.kbDbService.updateChunkById(chunk._id, {
       status: ChunkStatus.EMBEDDING_GENERATED,
     });
   }
 
-  /**
-   * Get top n chunks in the knowledgebase for the given query
-   * @param kbId
-   * @param query
-   * @param threshold
-   * @returns
-   */
+  
+
   async getTopNChunks(
     kbId: ObjectId,
     query: string,
@@ -201,7 +184,7 @@ export class OpenaiChatbotService {
     const queryTerms = extractQueryTerms(normalizedQuery);
     const isShortQuery = normalizedQuery.split(/\s+/).filter(Boolean).length <= 2;
 
-    // Get embeddings for given query
+    
     const queryEmbedding = await this.openaiService.getEmbedding(
       normalizedQuery,
       this.getCustomKeys(customKeys),
@@ -213,7 +196,7 @@ export class OpenaiChatbotService {
       return [];
     }
 
-    // In-process cosine search (no Python Celery worker — fixes long hangs on Render).
+    
     const TOP_N = 8;
     const kbEmbeddings = await this.kbDbService.listEmbeddingsForKnowledgebase(
       kbId,
@@ -235,7 +218,7 @@ export class OpenaiChatbotService {
         ? topChunks.filter((chunk) => chunk.similarity > threshold)
         : topChunks;
     if (filteredChunks.length === 0) {
-      // For short / noisy queries (e.g. one-word), keep best matches anyway.
+      
       filteredChunks = topChunks.slice(0, 3);
     }
 
@@ -257,7 +240,7 @@ export class OpenaiChatbotService {
       score: chunksScoreMap[chunk._id.toString()],
     }));
 
-    // Hybrid fallback: lexical matches by full phrase.
+    
     if (isShortQuery) {
       const lexicalMatches = await this.kbDbService.searchChunksByKeyword(
         kbId,
@@ -270,13 +253,13 @@ export class OpenaiChatbotService {
         .map((chunk) => ({
           ...chunk,
           content: `${chunk.title}: ${chunk.chunk}`,
-          // lexical hits are typically very relevant for one-word intents
+          
           score: 0.95,
         }));
       topChunkData = [...topChunkData, ...lexicalAsCompletion];
     }
 
-    // Lexical fallback by query terms works better for natural-language questions.
+    
     const termMatches = await this.kbDbService.searchChunksByTerms(
       kbId,
       queryTerms,
@@ -297,7 +280,7 @@ export class OpenaiChatbotService {
       topChunkData = [...topChunkData, ...termAsCompletion];
     }
 
-    // Final fallback: if chunks are missing/empty, search original page datastore by keyword.
+    
     if (topChunkData.length === 0) {
       const pageMatches = await this.kbDbService.searchDataStoreByKeyword(
         kbId,
@@ -323,7 +306,7 @@ export class OpenaiChatbotService {
       topChunkData = pageAsChunks;
     }
 
-    // Additional datastore fallback by terms for long natural-language questions.
+    
     if (topChunkData.length < 2 && queryTerms.length > 0) {
       const pageMatches = await this.kbDbService.searchDataStoreByTerms(
         kbId,
@@ -356,9 +339,7 @@ export class OpenaiChatbotService {
     return topChunkData.sort((a, b) => b.score - a.score).slice(0, 8);
   }
 
-  /** *******************************************
-   * CHAT GPT ANSWER RELATED
-   ******************************************** */
+  
 
   getTokenCountForChatGptMessages(messages: ChatGptPromptMessages): number {
     return this.openaiService.getTokenCount(
@@ -378,12 +359,12 @@ export class OpenaiChatbotService {
     prompt?: string,
     maxTokenLimit = 4000,
   ): ChatGptPromptMessages {
-    // Defaults
+    
     defaultAnswer = defaultAnswer || "I don't know how to answer that";
     prompt = prompt || DEFAULT_CHATGPT_PROMPT;
 
-    // First compile the prompt without ctx and pastMessages to get the number of tokens
-    // that the ctx and passMessages can occupy together
+    
+    
     const emptyPrompt = this.promptService.compilePrompt(prompt, {
       chatbotName,
       ctx: '',
@@ -393,35 +374,33 @@ export class OpenaiChatbotService {
     });
     const emptyPromptTokens = this.getTokenCountForChatGptMessages(emptyPrompt);
 
-    /** ********************************************************************
-     * NOTE: Size of chunk matters heavily in the following calculation
-     * The current CHUNK_SIZE of 1500 is fit for chatgpt prompt size of 4000
-     ********************************************************************* */
-    // Calculation on how to split the remainingTokens between ctx and pastMessages
-    // CONSIDERATIONS:
-    // - Bare minimum - 2 ctx blocks and 2 previous msgs (truncated if necessary)
-    // - Only the last 2 messages are important, others can be discarded if necessary
-    // - We can truncate the chatbot response of the 2nd last msg if required
-    // - Try to fit in as many context blocks as possible
-    // LOGIC:
-    // - First add two chunks to the context
-    // - Add 2 of past messages
-    // - If token limit not exceeded
-    //    - Continue adding chunks to context till token limit is reached
-    // - else
-    //    - remove n-2th msg
+    
 
-    const remainingTokens = maxTokenLimit - emptyPromptTokens - 300; // 500 for response
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    const remainingTokens = maxTokenLimit - emptyPromptTokens - 300; 
     const pastMessagesTokenCount = prevMessages.reduce((count, m) => {
       count += m.aTokens + this.openaiService.getTokenCount(m.q);
       return count;
     }, 0);
 
-    // Function to construct ctx block given a chunk
+    
     const getCtxBlock = (chunk: ChunkForCompletion) =>
       `${chunk.content}${chunk.url ? '; URL: ' + chunk.url : ''}`;
 
-    // Try to Add 2 chunks initially
+    
     let ctx = '';
     let tokenCount = 0;
     for (let i = 0; i < Math.min(2, topChunks.length); i++) {
@@ -436,14 +415,14 @@ export class OpenaiChatbotService {
       }
     }
 
-    // Check if adding the past messages would exceed token limit
-    // If yes then take only last message
+    
+    
     if (tokenCount + pastMessagesTokenCount > remainingTokens) {
       const lastMsg = prevMessages[prevMessages.length - 1];
       const lastMsgTokenCount =
         lastMsg.aTokens + this.openaiService.getTokenCount(lastMsg.q);
 
-      // See if its possibl to add only the last msg
+      
       if (tokenCount + lastMsgTokenCount < remainingTokens) {
         prevMessages = prevMessages.slice(-1);
         tokenCount += lastMsgTokenCount;
@@ -459,7 +438,7 @@ export class OpenaiChatbotService {
       { role: 'assistant', content: msg.a },
     ]);
 
-    // Continue adding chunks to the context till token limit is reached
+    
     for (let i = 2; i < topChunks.length; i++) {
       const chunk = topChunks[i];
       const ctxSection = getCtxBlock(chunk);
@@ -503,9 +482,9 @@ export class OpenaiChatbotService {
       prompt,
     );
 
-    // if (debug) {
-    //   this.logger.log('Prompt Messages', JSON.stringify(messages));
-    // }
+    
+    
+    
 
     const answer = await this.openaiService.getChatGptCompletion(
       {

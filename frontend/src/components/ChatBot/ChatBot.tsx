@@ -46,7 +46,6 @@ const getMessageStyle = (type: string, customStyle) => {
 	}
 }
 
-
 export const ChatBot = ({
 	customStyle,
 	knowledgeBaseId,
@@ -71,19 +70,18 @@ export const ChatBot = ({
 
 	const [question, setQuestion] = React.useState<string>('');
 
-	// submit form on ctrl+ enter
+	
 
 	
 
-	// const han
+	
 
-	// onEnterPress = (e) => {
-	// 	if(e.keyCode == 13 && e.shiftKey == false) {
-	// 	  e.preventDefault();
-	// 	  this.myFormRef.submit();
-	// 	}
-	//   }
-
+	
+	
+	
+	
+	
+	
 
 	const handleChatChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		console.log('e', e.target.value);
@@ -150,7 +148,6 @@ export const ChatBot = ({
 	return (
 		<div className="chat-wrap widget-open" id="chat-wrap">
 
-
 			<div className="chat-widget" style={{ borderRadius: customStyle.borderRadius, height: height, minHeight:"410px" }}>
 				<Box className="chat-header"  bgColor={customStyle.backgroundColor} color={customStyle.fontColor} >
 					{showCloseButton &&<Box className="chat-close">
@@ -205,7 +202,7 @@ export const ChatBot = ({
 					})}
 				</div>
 				<Box className="chat-input-wrap">
-					{/* {user && user?.subscriptionData?.name === 'FREE' && <div className='chat-message-warning'>{numberOfMessagesLeft} messages left</div>} */}
+					{}
 					<TextareaAutosize value={question} onChange={handleChatChange} onKeyDown={handleKeyDown} rows="1" className="chat-input textarea js-auto-size" id="chat-input" placeholder="Хабарламаңызды енгізіңіз" />
 					<button onClick={handleSubmit}  className="chat-submit-btn" type="submit"><svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path fillRule="evenodd" clipRule="evenodd" d="M4.394 14.7L13.75 9.3c1-.577 1-2.02 0-2.598L4.394 1.299a1.5 1.5 0 00-2.25 1.3v3.438l4.059 1.088c.494.132.494.833 0 .966l-4.06 1.087v4.224a1.5 1.5 0 002.25 1.299z" style={{ fill: customStyle.backgroundColor }}></path>

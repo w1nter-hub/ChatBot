@@ -101,11 +101,8 @@ export class ChatbotController {
     return this.chatbotService.getChatSessionData(user, id);
   }
 
-  /**
-   * Retrieves the messages for a given chat-session ID.
-   * @param id The ID of the chat session.
-   * @returns A promise that resolves to the chat session messages.
-   */
+  
+
   @Public()
   @Get('/session/:id/messages')
   async getSessionMessages(

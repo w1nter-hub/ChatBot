@@ -34,14 +34,10 @@ export class TextractImporterService {
     }
   }
 
-  /**
-   * Extract content for file content
-   * @param fileType kk
-   * @param base64Content
-   * @returns
-   */
+  
+
   async extractContentForFileContent(fileType: string, base64Content: string) {
-    // Make api call to textract server to get content
+    
     const res = await axios.post(this.appConfig.get('textractServiceUrl'), {
       file_type: fileType,
       data: base64Content,
@@ -50,11 +46,8 @@ export class TextractImporterService {
     return res.data.text;
   }
 
-  /**
-   * Extract content for file using textract service
-   * @param file
-   * @returns
-   */
+  
+
   async extractContentForFile(file: Express.Multer.File): Promise<string> {
     const fileType = extname(file.originalname).slice(1);
     if (!this.isSupportedFileType(fileType)) {
@@ -78,10 +71,10 @@ export class TextractImporterService {
     const kb = await this.kbDbService.getKnowledgebaseSparseById(kbId);
     checkUserPermissionForKb(user, kb, [UserPermissions.EDIT]);
 
-    // Extract content
+    
     const content = await this.extractContentForFile(file);
 
-    // Insert to kbDataStore
+    
     const ts = new Date();
     const res = await this.kbDbService.insertToKbDataStore({
       knowledgebaseId: kbId,

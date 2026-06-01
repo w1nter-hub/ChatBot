@@ -46,7 +46,7 @@ export class SubscriptionService {
     signature: string,
     rawBody?: Buffer,
   ) {
-    // Validate signature
+    
     if (!this.validateLemonSqueezyPayload(rawBody, signature)) {
       this.logger.warn('Error validating payload signature', payload);
       return;
@@ -74,16 +74,16 @@ export class SubscriptionService {
     const email = payload.data.attributes.user_email.toLowerCase();
 
     let plan;
-    // Check if the variant id is for App Sumo Life Time Deals
+    
     if (
       isVariantForLifeTimeDeals(
         payload.data.attributes.first_order_item.variant_id,
       )
     ) {
-      // For LTD the Plan is based on how many times the variant was purchased
-      // Eg. New user purchases Variant -> Tier 1
-      //     Tier 1 user purchases Variant -> Tier 2
-      //     Tier 2 user purchases Variant -> Tier 3
+      
+      
+      
+      
       const userData = await this.userService.getUserByEmail(email);
       if (!userData) return;
       if (userData.activeSubscription === Subscription.FREE) {

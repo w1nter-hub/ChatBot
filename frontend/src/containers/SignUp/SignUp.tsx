@@ -12,7 +12,6 @@ import {
 	useToast,
 } from '@chakra-ui/react';
 
-
 import { Field, Form, Formik } from 'formik';
 
 import { signUp } from '../../services/authServices';

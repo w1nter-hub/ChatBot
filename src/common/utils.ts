@@ -122,54 +122,37 @@ export async function getLimitOffsetPaginatedResponse<T = any>(
   };
 }
 
-/** *************************************************
- * RETRY FN WITH EXPONENTIAL BACKOFF
- ************************************************** */
-
-/**
- * Wait for the given milliseconds
- * @param {number} milliseconds The given time to wait
- * @returns {Promise} A fulfilled promise after the given time has passed
- */
 function waitFor(milliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-/**
- * Execute a promise and retry with exponential backoff
- * based on the maximum retry attempts it can perform
- * @param {Promise} promise promise to be executed
- * @param {function} onRetry callback executed on every retry
- * @param {number} maxRetries The maximum number of retries to be attempted
- * @returns {Promise} The result of the given promise passed in
- */
 function retry(
   promise: () => Promise<any>,
   onRetry: () => void,
   maxRetries: number,
   initialDelay = 100,
 ) {
-  // Notice that we declare an inner function here
-  // so we can encapsulate the retries and don't expose
-  // it to the caller. This is also a recursive function
+  
+  
+  
   async function retryWithBackoff(retries) {
     try {
-      // Make sure we don't wait on the first attempt
+      
       if (retries > 0) {
-        // Here is where the magic happens.
-        // on every retry, we exponentially increase the time to wait.
-        // Here is how it looks for a `maxRetries` = 4
-        // (2 ** 1) * 100 = 200 ms
-        // (2 ** 2) * 100 = 400 ms
-        // (2 ** 3) * 100 = 800 ms
+        
+        
+        
+        
+        
+        
         const timeToWait = 2 ** retries * initialDelay;
         console.log(`waiting for ${timeToWait}ms...`);
         await waitFor(timeToWait);
       }
       return await promise();
     } catch (e) {
-      // only retry if we didn't reach the limit
-      // otherwise, let the caller handle the error
+      
+      
       if (retries < maxRetries) {
         onRetry?.();
         return retryWithBackoff(retries + 1);
@@ -183,14 +166,9 @@ function retry(
   return retryWithBackoff(0);
 }
 
-/** *************************************************
- * ENCRYPT / DECRYPT
- ************************************************** */
-
-// Encrypt data using the symmetric key
 function encryptData(data: string, key: string) {
   const keyBuf = Buffer.from(key, 'hex');
-  const iv = crypto.randomBytes(16); // 16 bytes for AES
+  const iv = crypto.randomBytes(16); 
   const cipher = crypto.createCipheriv('aes-256-cbc', keyBuf, iv);
   const encryptedBuffer = Buffer.concat([
     cipher.update(data, 'utf8'),
@@ -202,7 +180,6 @@ function encryptData(data: string, key: string) {
   };
 }
 
-// Decrypt data using the symmetric key and IV
 function decryptData(encryptedData: string, key: string, iv: string) {
   const keyBuf = Buffer.from(key, 'hex');
 

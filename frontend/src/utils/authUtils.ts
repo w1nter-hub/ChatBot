@@ -8,6 +8,6 @@ export const setAuthDetails = (token: string) => {
 	localStorage.setItem('accesstoken', token);
 };
 export const removeAuthenticationDetails = () => {
-	//axios.defaults.headers.common['Authorization'] = '';
+	
 	localStorage.removeItem('accesstoken');
 };

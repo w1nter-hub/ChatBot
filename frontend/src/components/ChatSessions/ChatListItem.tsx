@@ -8,7 +8,6 @@ import { ReadIcon } from '../Icons/ReadIcon'
 import { UnreadIcon } from '../Icons/UnreadIcon'
 import { permissions } from '../../services/appConfig'
 
-
 type ChatListItemProps = {
     isSelected?: boolean;
     chatSessionData: ChatSession;

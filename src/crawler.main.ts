@@ -48,7 +48,7 @@ async function processPage(
   parser: (html: string) => Promise<string>,
   useAlternateParser = false,
 ) {
-  // Get cleaned text content from the html
+  
   let pageContent;
   if (!useAlternateParser) {
     const cleanedContent = getCleanedHtmlContent(pageData.content);
@@ -59,11 +59,11 @@ async function processPage(
       pageContent = '';
     }
   } else {
-    // TODO: Fall back to normal parser if this fails
+    
     pageContent = await parser(pageData.content);
   }
 
-  // Add page to kbDataStore
+  
   const ts = new Date();
   await insertKbDataStoreEntry({
     knowledgebaseId,
@@ -78,7 +78,7 @@ async function processPage(
 }
 
 async function bootstrap() {
-  // Get required services from NestJs
+  
   const app = await NestFactory.createApplicationContext(CrawlerAppModule);
   const appConfigService = app.get(AppConfigService);
   const crawlerService = app.get(CrawlerService);
@@ -88,7 +88,7 @@ async function bootstrap() {
   const chatbotService = app.get(ChatbotService);
   const logger = new Logger('CrawlerWorker');
 
-  // Celery Worker Init (same broker URL as API: prefer REDIS_URL for cloud Redis)
+  
   const redisUrl = appConfigService.get('redisUrl');
   const redisConnectionStr = redisUrl
     ? redisUrl.endsWith('/')
@@ -110,20 +110,16 @@ async function bootstrap() {
 
   const crawlerJobQueue = new MaxJobQueue(1);
 
-  // Hack to decrease the TTL of the result
+  
   (worker.backend as any).set = function (key: string, value: string) {
     return Promise.all([
       this.redis.setex(key, 60, value),
-      this.redis.publish(key, value), // publish command for subscribe
+      this.redis.publish(key, value), 
     ]);
   };
 
-  /**
-   * Worker function
-   * @param crawlData
-   * @param knowledgebaseId
-   * @returns
-   */
+  
+
   async function doCrawl(
     crawlData: CrawlConfig,
     knowledgebaseId: string,
@@ -177,7 +173,7 @@ async function bootstrap() {
           new ObjectId(knowledgebaseId),
           KnowledgebaseStatus.CRAWL_ERROR,
         );
-        // Retry task with linearly increasing timeout
+        
         if (retryCount < 3) {
           setTimeout(async () => {
             await client
@@ -194,14 +190,12 @@ async function bootstrap() {
     });
   }
 
-  /**
-   * Generate embeddings for knowledgebase
-   * @param knowledgebaseId
-   */
+  
+
   async function generateEmbeddingsForKnowledgebase(knowledgebaseId: string) {
     const kbId = new ObjectId(knowledgebaseId);
 
-    // Generate chunks for all data store items which are not trained yet
+    
     const dsItemCursor = kbDbService.getKbDataStoreItemsForKnowledgebase(kbId, [
       DataStoreStatus.CREATED,
       DataStoreStatus.CHUNKED,
@@ -214,7 +208,7 @@ async function bootstrap() {
         );
       }
 
-      // Set the knowledgebase as ready
+      
       await kbDbService.updateKnowledgebaseStatus(
         kbId,
         KnowledgebaseStatus.READY,

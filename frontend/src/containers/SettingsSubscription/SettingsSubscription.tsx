@@ -5,7 +5,6 @@ import { CurrentUser, User } from '../../services/appConfig';
 import { DiscoutData } from '../../types/subscription.type';
 import { PricingDiscounts, getPricingDiscounts } from '../../services/commonServices';
 
-
 export const SettingsSubscription = () => {
     const [user, setUser] = React.useState<User>(CurrentUser.get());
     const [discountData, setDiscountData] = React.useState<DiscoutData>();

@@ -6,7 +6,7 @@ import configuration from './configuration';
 @Global()
 @Module({
   imports: [
-    // App configuration
+    
     ConfigModule.forRoot({ load: [configuration] }),
   ],
   providers: [AppConfigService],

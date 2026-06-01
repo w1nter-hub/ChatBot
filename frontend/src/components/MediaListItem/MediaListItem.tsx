@@ -75,8 +75,6 @@ export const MediaListItem = ({ ownerId, participants, onMenuItemClick, showWarn
 		fetchData();
 	}, [ownerId, participants, user._id]);
 
-
-
 	const handleDelete = () => {
 		setIsDeleteDialogOpen(true);
 	};
@@ -114,7 +112,6 @@ export const MediaListItem = ({ ownerId, participants, onMenuItemClick, showWarn
 		return ''
 
 	}
-
 
 	return (
 		<>

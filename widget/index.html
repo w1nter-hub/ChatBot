@@ -1,4 +1,3 @@
-
 <html lang="en">
 
 <head>
@@ -9,7 +8,7 @@
 </head>
 
 <body>
-    <!--A chatbot markup with a launcher to open and close vhat widget-->
+    
     <div class="chat-wrap chat-wrap-ai-assistant" id="chat-wrap" style="opacity: 0">
 
         <div class="chat-launcher" id="chat-launcher">
@@ -97,7 +96,7 @@
                     <label for="offline-message-name"><span id="label-offline-message-name">Аты-жөні</span> <span
                             class="form-required">*</span></label>
                     <input type="text" class="form-control" id="offline-message-name" placeholder="Аты-жөніңізді енгізіңіз">
-                    <!--Error message-->
+                    
                     <div class="invalid-feedback required-field" id="invalid-feedback-name">Бұл өрісті толтыру қажет</div>
 
                 </div>
@@ -105,7 +104,7 @@
                     <label for="offline-message-email"><span id="label-offline-message-email">Электрондық пошта</span> <span
                             class="form-required">*</span></label>
                     <input type="text" class="form-control" id="offline-message-email" placeholder="Пошта мекенжайыңызды енгізіңіз">
-                    <!--Error message-->
+                    
                     <div class="invalid-feedback required-field" id="invalid-feedback-email">Бұл өрісті толтыру қажет
                     </div>
                     <div class="invalid-feedback" id="invalid-feedback-email-invalid">Дұрыс электрондық пошта енгізіңіз</div>
@@ -116,7 +115,7 @@
                             class="form-required">*</span></label>
                     <textarea class="form-control" rows="4" id="offline-message-message"
                         placeholder="Хабарламаңызды жазыңыз"></textarea>
-                    <!--Error message-->
+                    
                     <div class="invalid-feedback required-field" id="invalid-feedback-message">Бұл өрісті толтыру қажет
                     </div>
 
@@ -185,8 +184,6 @@
         integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz"
         crossorigin="anonymous"></script>
 
-
-
     <script type="module">
         const STREAM_RESPONSE = true;
         const FALLBACK_PATTERNS = [
@@ -199,8 +196,7 @@
             "жауап беру мүмкін емес",
         ];
 
-
-        // message format
+        
 
         let origin = '';
         let container = '';
@@ -222,7 +218,7 @@
         const defaultWelcomeMessage = 'Сәлем! Сізге қалай көмектесе аламын?';
         const submitBtnSubmittingText = 'Жіберілуде...';
 
-        /** DB may still store old English strings; replace known legacy values so UI stays Kazakh. */
+        
         function applyKzOfflineFormFallbacks(raw) {
             if (!raw || typeof raw !== 'object') return raw;
             const kz = {
@@ -278,7 +274,6 @@
             return out;
         }
 
-
         let sessionId = '';
 
         function isFallbackResponse(text) {
@@ -301,7 +296,7 @@
         function getDomainFromUrl(url) {
             if (!url) return '';
             const matches = url.match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i);
-            const domain = matches && matches[1]; // domain will be null if no match is found
+            const domain = matches && matches[1]; 
             return (domain || '').replace('www.', '');
         }
 
@@ -318,10 +313,9 @@
             chatWidget.classList.add('hide-chat-actions');
         }
 
-        /**
-         * Iframe communications
-         */
-        // Msg listener
+        
+
+        
         window.onmessage = function(event) {
             if (event.data.messageType === 'qoldauai:recieve_meta_data') {
                 origin = event.data.url;
@@ -381,16 +375,15 @@
                 const hl = hljs.highlight(code, { language: 'javascript' }).value;
                 return hl;
             },
-            langPrefix: 'hljs language-', // highlight.js css expects a top-level 'hljs' class.
+            langPrefix: 'hljs language-', 
         });
 
         function escapeRegExp(string) {
-            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
         }
         function replaceAll(str, find, replace) {
             return str.replace(new RegExp(escapeRegExp(find), 'g'), replace);
         }
-
 
         function resetChatHistory() {
             const chatMessages = document.getElementById('chat-messages');
@@ -404,10 +397,9 @@
             notifyClearHistory();
         }
 
-
         autosize(document.querySelector('#chat-input'));
 
-        // toggle class on chat widget on chat-launcher-btn
+        
         const chatLauncherBtn = document.querySelector('.chat-launcher-btn');
         const chatCloseBtn = document.querySelector('#chat-close-btn');
         const chatMaximizeBtn = document.querySelector('#chat-maximize-btn');
@@ -443,7 +435,7 @@
         }
 
         async function getWidgetData() {
-            //const domain = 'chat.timemaster.ai';
+            
             let url;
             const kbId = urlParams.get('kbId');
             if (kbId) {
@@ -457,13 +449,13 @@
             const response = await fetch(
                 url,
                 {
-                    method: 'GET', // *GET, POST, PUT, DELETE, etc.
+                    method: 'GET', 
                     headers: {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                     },
-                    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-                    // body data type must match "Content-Type" header
+                    referrerPolicy: 'no-referrer', 
+                    
                 }
             );
 
@@ -477,9 +469,8 @@
             } else {
                 console.log('error');
             }
-            //return response;
+            
         }
-
 
         async function getWidgetMessages() {
             if (!sessionId) {
@@ -539,7 +530,7 @@
                 console.log('connected');
             });
             socket.on('user_chat', function(msgData) {
-                // append to UI 
+                
                 const chatMessage = createChatMessage(msgData.msg, true);
                 insertMessageIntoUI(chatMessage);
             });
@@ -588,7 +579,7 @@
             const formSendAgainBtn = document.getElementById("offline-message-success-close");
             const formTryAgainBtn = document.getElementById("offline-message-error-close");
 
-            /* Same shapes as dashboard preview (LauncherIcon1–5) + currentColor for fontColor. */
+            
             const defaultLauncherIcon = `<svg xmlns="http://www.w3.org/2000/svg" focusable="false" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" style="width:38px;height:38px"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5.821 4.91c3.898 -2.765 9.469 -2.539 13.073 .536c3.667 3.127 4.168 8.238 1.152 11.897c-2.842 3.447 -7.965 4.583 -12.231 2.805l-.232 -.101l-4.375 .931l-.075 .013l-.11 .009l-.113 -.004l-.044 -.005l-.11 -.02l-.105 -.034l-.1 -.044l-.076 -.042l-.108 -.077l-.081 -.074l-.073 -.083l-.053 -.075l-.065 -.115l-.042 -.106l-.031 -.113l-.013 -.075l-.009 -.11l.004 -.113l.005 -.044l.02 -.11l.022 -.072l1.15 -3.451l-.022 -.036c-2.21 -3.747 -1.209 -8.392 2.411 -11.118l.23 -.168z" stroke-width="0" fill="currentColor"></path></svg>`;
             const launcherIcon2 = `<svg xmlns="http://www.w3.org/2000/svg" focusable="false" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 16 16" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:30px"><path d="M2 0a2 2 0 00-2 2v12.793a.5.5 0 00.854.353l2.853-2.853A1 1 0 014.414 12H14a2 2 0 002-2V2a2 2 0 00-2-2H2z" stroke-width="0" fill="currentColor"></path></svg>`;
             const launcherIcon3 = `<svg xmlns="http://www.w3.org/2000/svg" focusable="false" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 16 16" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:30px"><path d="M14 0a2 2 0 012 2v12.793a.5.5 0 01-.854.353l-2.853-2.853a1 1 0 00-.707-.293H2a2 2 0 01-2-2V2a2 2 0 012-2h12z" stroke-width="0" fill="currentColor"></path></svg>`;
@@ -745,7 +736,6 @@
             `
             styleSheet.textContent = (chatWidgetData?.customCSS || '') + styles;
 
-
             if (chatWidgetData.questionExamples && chatWidgetData.questionExamples.length > 0 || chatWidgetData.enableHumanChat) {
                 const sampleMessages = document.getElementById('chat-sample-messages');
                 sampleMessages.classList.remove('hide-sample-messages');
@@ -773,7 +763,7 @@
                     const wrap = document.getElementById('chat-wrap');
                     const offlineTab = document.getElementById('tab-offline-msg');
                     if (wrap && offlineTab) {
-                        /* Form works even if owner never enabled "offlineMessage" in DB — chip is explicitly for contact. */
+                        
                         wrap.classList.add('has-offline-message');
                         requestAnimationFrame(() => offlineTab.click());
                         return;
@@ -782,8 +772,6 @@
                 const message = target.getAttribute('data-message') || target.innerText;
                 addMessageToChat(message);
             });
-
-
 
             chatWithHumanButton.addEventListener('click', async (e) => {
                 if (!enableHumanChat) return;
@@ -834,24 +822,22 @@
                 document.head.appendChild(styleSheet);
             }, 400);
 
-
         })();
-
 
         async function createSession(userData) {
             const response = await fetch(
                 `${baseURL}${'/chatbot/session?src=widget'}`,
                 {
-                    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                    method: 'POST', 
                     headers: {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                     },
-                    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                    referrerPolicy: 'no-referrer', 
                     body: JSON.stringify({
                         "knowledgebaseId": knowledgebaseId,
                         userData: userData
-                    }), // body data type must match "Content-Type" header
+                    }), 
                 }
             );
 
@@ -862,7 +848,7 @@
             } else {
                 console.log('error');
             }
-            //return response;
+            
         }
 
         async function initManualChat(sessionId) {
@@ -924,15 +910,15 @@
             const response = await fetch(
                 `${baseURL}/chatbot/session/${sessionId}`,
                 {
-                    method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+                    method: 'PUT', 
                     headers: {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                     },
-                    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                    referrerPolicy: 'no-referrer', 
                     body: JSON.stringify({
                         userData: userData
-                    }), // body data type must match "Content-Type" header
+                    }), 
                 }
             );
             if (response.status === 200) {
@@ -941,23 +927,23 @@
             } else {
                 console.log('error');
             }
-            //return response;
+            
         }
 
         async function getAnswer(sessionId, query) {
             const response = await fetch(
                 `${baseURL}${'/chatbot/answer'}`,
                 {
-                    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                    method: 'POST', 
                     headers: {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
                     },
-                    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                    referrerPolicy: 'no-referrer', 
                     body: JSON.stringify({
                         "sessionId": sessionId,
                         "query": query
-                    }), // body data type must match "Content-Type" header
+                    }), 
                 }
             );
 
@@ -967,7 +953,7 @@
             } else {
                 console.log('error');
             }
-            //return response;
+            
         }
 
         function getAnswerStream(sessionId, query, cb, errorCb) {
@@ -1000,7 +986,6 @@
                 </div>
                 `;
         };
-
 
         function createChatMessage(msg, isChatbot) {
             const messageType = isChatbot ? 'chatbot' : 'user';
@@ -1036,7 +1021,6 @@
             input.value = '';
             autosize.update(input);
 
-
             if (isManualChat) {
                 if(!sessionId) {
                     sessionId = await createSession({
@@ -1046,7 +1030,7 @@
                     notifyNewSession(sessionId);
                 }
                 const msgData = { 'sender': 'user', 'msg': message,  id: uuidv4(), 'sessionId': sessionId }
-                // send message to admin
+                
                 socketData.emit('user_chat', msgData);
 
                 return;
@@ -1093,7 +1077,7 @@
                             sourcesBtns = `<div class="chat-sources"><div class="chat-source-read-more">${readMoreText}</div>${sourcesBtns}</div>`
                         }
 
-                        //data = data.replace(/\n/g, '<br/>')
+                        
                         msg = `${msg}${content}${sourcesBtns}`
                         msgHolder.innerHTML = msg;
                     } else {
@@ -1241,8 +1225,7 @@
             })
         }
 
-
-        // JavaScript code to handle the chat form submission
+        
         const form = document.getElementById('chat-form');
 
         form.addEventListener('submit', async (e) => {
@@ -1256,7 +1239,6 @@
                 addMessageToChat();
             }
         };
-
 
         function notifyParentWidgetExpand() {
             window.top.postMessage('qoldauai:widget_expand', '*');
@@ -1293,8 +1275,6 @@
             window.top.postMessage('qoldauai:request_meta_data', '*');
         }
 
-
-
         function requestSessionId() {
             window.top.postMessage('qoldauai:request_session_id', '*');
         }
@@ -1309,7 +1289,6 @@
                 isManualChat: isManualChat || false
             }, '*');
         }
-
 
         const offlineMessageBtn = document.getElementById('offline-message-submit');
 
@@ -1358,8 +1337,6 @@
                 const email = $email.value;
                 const message = $message.value;
 
-
-
                 const isValidEmail = validateEmail(email);
 
                 console.log(isValidEmail, name, message)
@@ -1380,8 +1357,8 @@
                     const response = await fetch(
                         `${baseURL}${'/offline_msg'}`,
                         {
-                            method: 'POST', // *GET, POST, PUT, DELETE, etc.
-                            mode: 'cors', // no-cors, *cors, same-origin
+                            method: 'POST', 
+                            mode: 'cors', 
                             headers: {
                                 'Content-Type': 'application/json'
                             },
@@ -1392,7 +1369,7 @@
                                 "message": message,
                                 "sessionId": sessionId,
                                 "url": origin || (typeof window !== 'undefined' ? window.location.href : ''),
-                            }), // body data type must match "Content-Type" header
+                            }), 
                         }
                     );
 
@@ -1455,7 +1432,6 @@
 
         }
 
-
         const aiAssistantTab = document.getElementById('tab-ai-assistant');
         const offlineMsgTab = document.getElementById('tab-offline-msg');
         const tabsActive = document.getElementById('tabs-active');
@@ -1485,6 +1461,5 @@
 
 </script>
 </body>
-
 
 </html>

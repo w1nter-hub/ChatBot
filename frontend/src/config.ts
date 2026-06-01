@@ -2,7 +2,6 @@ export const GOOGLE_AUTH_ID = process.env.REACT_APP_GOOGLE_AUTH_ID;
 export const baseURL = process.env.REACT_APP_BASE_URL;
 export const SELF_HOST = process.env.REACT_APP_SELF_HOST;
 
-/** Демо бетіндегі 3 чат-боттың MongoDB ObjectId (24 таңба, үтірмен). Бос болса — ескі placeholder ID қолданылады. */
 const demoIdsRaw = process.env.REACT_APP_DEMO_CHATBOT_IDS || '';
 export const DEMO_CHATBOT_IDS: string[] = demoIdsRaw
 	.split(',')
@@ -20,7 +19,7 @@ const FALLBACK_DEMO_CHATBOT_IDS = [
 export function getDemoChatbotId(index: number): string {
 	return DEMO_CHATBOT_IDS[index] || FALLBACK_DEMO_CHATBOT_IDS[index] || FALLBACK_DEMO_CHATBOT_IDS[0];
 }
-/** Публичный URL статики виджета (без слэша в соңы). */
+
 export const QOLDAUAI_WIDGET_URL =
 	process.env.REACT_APP_QOLDAUAI_WIDGET_URL ||
 	'http://localhost:3031';

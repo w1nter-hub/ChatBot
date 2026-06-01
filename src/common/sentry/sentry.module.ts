@@ -6,16 +6,12 @@ import { SentryInterceptor } from './sentry.interceptor';
 
 export const SENTRY_OPTIONS = 'SENTRY_OPTIONS';
 
-/**
- * Taken from https://github.com/ericjeker/nestjs-sentry-example/tree/master/src/sentry
- */
-
 @Module({
   providers: [SentryService],
 })
 export class SentryModule {
   static forRoot(options: Sentry.NodeOptions) {
-    // initialization of Sentry, this is where Sentry will create a Hub
+    
     Sentry.init(options);
 
     return {

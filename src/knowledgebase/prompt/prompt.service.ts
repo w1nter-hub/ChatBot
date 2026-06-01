@@ -46,7 +46,7 @@ export class PromptService {
     try {
       const parsedPrompt = JSON.parse(prompt) as any[];
 
-      // Interpolate variables in content and add pastMessages
+      
       const finalPrompt = parsedPrompt
         .map((p) => ({
           ...p,

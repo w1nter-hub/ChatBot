@@ -108,7 +108,7 @@ export const subscriptionPlanData: Record<Subscription, SubscriptionPlanInfo> =
       maxChunksPerPage: 100,
       maxMessages: 99900000,
     },
-    // APP SUMO PLANS
+    
     [Subscription.APPSUMO_TIER1]: {
       name: 'App Sumo Tier 1',
       type: SubscriptionType.LIFETIME,

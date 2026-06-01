@@ -1,9 +1,3 @@
-/**
- * Split the given string into chunks of size only breaking at newlines
- * @param text
- * @param chunkSize
- * @returns
- */
 export function splitTextIntoChunksOnLines(
   text: string,
   chunkSize: number,
@@ -22,7 +16,7 @@ export function splitTextIntoChunksOnLines(
     lineIdx++;
 
     if (chunk.length >= chunkSize) {
-      // If a line is reaaaaaaaaallly long, then further split the chunk
+      
       if (chunk.length > chunkSize * 1.5) {
         const splitChunks = chunk.match(
           new RegExp(`(.|[\r\n]){1,${chunkSize}}`, 'g'),

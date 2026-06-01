@@ -14,7 +14,6 @@ import {
 
 import styles from "./Settings.module.scss";
 
-
 import { SettingsGeneral } from "../SettingsGeneral/SettingsGeneral";
 
 export const Settings = () => {

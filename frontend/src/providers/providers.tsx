@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useContext } from 'react';
 import ConfirmationModal, { ConfirmationModalProps } from '../components/ConfirmationModal/ConfirmationModal';
 
-
 type Props = {
   children: React.ReactNode;
 };
