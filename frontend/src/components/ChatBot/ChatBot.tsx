@@ -128,12 +128,12 @@ export const ChatBot = ({
 			if(response.data?.response) {
 				setMessages([...messagesToUpdate, { type: 'bot', message: response.data?.response, id: uuidv4(), }])
 			} else if(typeof response.data === 'string' && response.data.trim() === 'Sorry I cannot respond right now')  {
-				setMessages([...messagesToUpdate, { type: 'bot-error', message: 'You have exceeded token limit. Please upgrade to a higher plan.', id: uuidv4(), }])
+				setMessages([...messagesToUpdate, { type: 'bot-error', message: 'Токен лимиті асып кетті. Жоғары жоспарға өтіңіз.', id: uuidv4(), }])
 			}
 	
 		} catch (error) {
 			const messagesToUpdate = newMessages.filter(message => !message.isLoading);
-			setMessages([...messagesToUpdate, { type: 'bot', message: `Oops! Unfortunately, I'm unable to answer right now.`, id: uuidv4(), }])
+			setMessages([...messagesToUpdate, { type: 'bot', message: 'Кешіріңіз, қазір жауап бере алмадым.', id: uuidv4(), }])
 		}
 		
 	}, [knowledgeBaseId, messages, numberOfMessagesLeft, question, sessionId])
@@ -164,7 +164,18 @@ export const ChatBot = ({
 					<Heading>
 						{customStyle.heading}
 					</Heading>
-					<Text dangerouslySetInnerHTML={{ __html: customStyle.description }}></Text>
+					<Text
+						dangerouslySetInnerHTML={{ __html: customStyle.description }}
+						sx={{
+							a: {
+								color: 'inherit',
+								textDecoration: 'underline',
+								fontWeight: 'bold',
+								background: 'transparent',
+							},
+							strong: { color: 'inherit', background: 'transparent', fontWeight: 'bold' },
+						}}
+					/>
 				</Box>
 				<div id="chat-messages" className="chat-messages">
 					{messages.map((message, index) => {

@@ -75,7 +75,7 @@ export class SlackBotService {
       );
       await client.chat.update({
         channel: event.channel,
-        text: 'Sorry, I am unable to answer your question. Please try again later.',
+        text: 'Кешіріңіз, сіздің сұрағыңызға жауап бере алмадым. Кейінірек қайталап көріңіз.',
         ts: loadingMsgTs,
       });
     }

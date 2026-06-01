@@ -194,6 +194,9 @@
             "i don't know",
             "unable to answer",
             "cannot answer",
+            "білмеймін",
+            "жауап бере алмаймын",
+            "жауап беру мүмкін емес",
         ];
 
 
@@ -1105,7 +1108,7 @@
 
                         if (isFallbackResponse(msg)) {
                             try {
-                                const expandedQuestion = `Расскажи подробнее по данным сайта: ${message}`;
+                                const expandedQuestion = `Сайт деректері бойынша толығырақ түсіндіріңіз: ${message}`;
                                 const retryResponseRaw = await getAnswer(sessionId, expandedQuestion);
                                 const retryText = extractResponseText(retryResponseRaw);
                                 if (retryText && !isFallbackResponse(retryText)) {
@@ -1171,7 +1174,7 @@
 
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }, () => {
-                    msgHolder.innerHTML = 'Oops! I am unable to answer right now!';
+                    msgHolder.innerHTML = 'Кешіріңіз, қазір жауап бере алмадым!';
                 });
             } else {
                 if (!sessionId) {
@@ -1182,8 +1185,11 @@
                 }
                 let response = await getAnswer(sessionId, message);
                 let responseText = extractResponseText(response);
+                if (responseText.trim() === 'Sorry I cannot respond right now') {
+                    responseText = 'Токен лимиті асып кетті. Жоғары жоспарға өтіңіз.';
+                }
                 if (isFallbackResponse(responseText)) {
-                    const expandedQuestion = `Расскажи подробнее по данным сайта: ${message}`;
+                    const expandedQuestion = `Сайт деректері бойынша толығырақ түсіндіріңіз: ${message}`;
                     const retryResponse = await getAnswer(sessionId, expandedQuestion);
                     const retryText = extractResponseText(retryResponse);
                     if (retryText && !isFallbackResponse(retryText)) {

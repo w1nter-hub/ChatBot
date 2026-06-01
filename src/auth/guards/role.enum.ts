@@ -11,7 +11,10 @@ import { Role } from '../types/role.enum';
 export const ROLES_KEY = 'roles';
 export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
 
-export const ADMINS = ['hi@qoldau.ai'];
+export const ADMINS = (process.env.ADMIN_EMAILS || 'hi@qoldau.ai')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
 
 @Injectable()
 export class RolesGuard implements CanActivate {

@@ -83,14 +83,14 @@ const Integrations = ({ chatbotId }: IntegrationsProps) => {
                                 </Button>
                             </a>
                             
-                            <a href="https://www.webwhiz.ai/docs/integrations/zapier-integration/">
+                            <a href="#">
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     colorScheme="gray"
                                     mt={4}
                                 >
-                                    View docs
+                                    Құжаттама
                                 </Button>
                             </a>
 
