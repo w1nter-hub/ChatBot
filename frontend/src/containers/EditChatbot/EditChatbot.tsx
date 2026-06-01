@@ -190,7 +190,7 @@ const EditChatbot = (props: EditChatbotProps) => {
 
 				setIsSubmitting(false);
 				toast({
-					title: `Successfully updated your chatbot`,
+					title: `Чат-бот сәтті жаңартылды`,
 					status: "success",
 					isClosable: true,
 				});
@@ -425,13 +425,13 @@ console.log(permissions.get(), 'permissionspermissions')
 			}));
 
 			toast({
-				title: `Custom data has been deleted successfully `,
+				title: `Деректер сәтті жойылды`,
 				status: "success",
 				isClosable: true,
 			});
 		} catch (error) {
 			toast({
-				title: `Oops! unable to delte custom data`,
+				title: `Қате орын алды, деректерді жою мүмкін болмады`,
 				status: "error",
 				isClosable: true,
 			});
@@ -906,13 +906,13 @@ console.log(permissions.get(), 'permissionspermissions')
 																await Promise.all(updatePromiseList);
 																await customizeWidget(chatBot._id, formData);
 																toast({
-																	title: `Chatbot customizations have been updated successfully`,
+																	title: `Виджет стилі сәтті жаңартылды`,
 																	status: "success",
 																	isClosable: true,
 																});
 															} catch (error) {
 																toast({
-																	title: `Oops! Something went wrong`,
+																	title: `Қате орын алды`,
 																	status: "error",
 																	isClosable: true,
 																});

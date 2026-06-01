@@ -41,7 +41,7 @@ const Members = (props: MembersProps) => {
     async (id?: string) => {
       if (!id) {
         toast({
-          title: `Revoke an invite currently unavailable.`,
+          title: `Шақыруды кері қайтару қазір қолжетімді емес`,
           status: 'error',
           isClosable: true,
         });
@@ -50,14 +50,14 @@ const Members = (props: MembersProps) => {
       try {
         await deleteUser(props.chatBotId, id);
         toast({
-          title: `User have been updated successfully`,
+          title: `Пайдаланушы сәтті жаңартылды`,
           status: 'success',
           isClosable: true,
         });
         props.onDeleteParticipant(id);
       } catch (error) {
         toast({
-          title: `Oops! Something went wrong`,
+          title: `Қате орын алды`,
           status: 'error',
           isClosable: true,
         });

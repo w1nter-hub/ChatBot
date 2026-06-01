@@ -232,7 +232,7 @@ export const CreateChatBots = () => {
 						setPrimaryButtonLabel('Verify pages');
 						setKnowledgeBaseId('');
 						toast({
-							title: `Oops! Something went wrong`,
+							title: `Қате орын алды`,
 							status: "error",
 							isClosable: true,
 						});
@@ -244,7 +244,7 @@ export const CreateChatBots = () => {
 				setIsSubmitting(false);
 				const errorData = error?.response?.data?.message
 				toast({
-					title:  (errorData) || 'Oops! Something went wrong',
+					title:  (errorData) || 'Қате орын алды',
 					status: "error",
 					isClosable: true,
 				});
@@ -264,7 +264,7 @@ export const CreateChatBots = () => {
 						clearInterval(interval);
 						setIsSubmitting(false);
 						toast({
-							title: `Oops! Something went wrong`,
+							title: `Қате орын алды`,
 							status: "error",
 							isClosable: true,
 						});
@@ -272,7 +272,7 @@ export const CreateChatBots = () => {
 						clearInterval(interval);
 						setIsSubmitting(false);
 						toast({
-							title: `Successfully created your chatbot`,
+							title: `Чат-бот сәтті жасалды`,
 							status: "success",
 							isClosable: true,
 						});
@@ -286,7 +286,7 @@ export const CreateChatBots = () => {
 				setDocsDataLoading(false);
 				const errorData = error?.response?.data?.message
 				toast({
-					title:  (errorData) || 'Oops! Something went wrong',
+					title:  (errorData) || 'Қате орын алды',
 					status: "error",
 					isClosable: true,
 				});
@@ -369,7 +369,7 @@ export const CreateChatBots = () => {
 					setPrimaryButtonLabel('Verify pages');
 					setKnowledgeBaseId('');
 					toast({
-						title: `Oops! Something went wrong`,
+						title: `Қате орын алды`,
 						status: "error",
 						isClosable: true,
 					});
@@ -383,7 +383,7 @@ export const CreateChatBots = () => {
 			setIsSecondaryBtnSubmitting(false);
 			const errorData = error?.response?.data?.message
 			toast({
-				title:  (errorData) || 'Oops! Something went wrong',
+				title:  (errorData) || 'Қате орын алды',
 				status: "error",
 				isClosable: true,
 			});

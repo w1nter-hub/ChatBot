@@ -51,7 +51,7 @@ export const MemberAddModal = ({
       try {
         await inviteUser(chatBotId, values);
         toast({
-          title: `User have been updated successfully`,
+          title: `Пайдаланушы сәтті жаңартылды`,
           status: 'success',
           isClosable: true,
         });
@@ -59,7 +59,7 @@ export const MemberAddModal = ({
         onClose();
       } catch (error) {
         toast({
-          title: `Oops! Something went wrong`,
+          title: `Қате орын алды`,
           status: 'error',
           isClosable: true,
         });
