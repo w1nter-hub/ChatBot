@@ -68,5 +68,10 @@
   },
   "devDependencies": {
     "@types/react-router-dom": "^5.1.8"
+  },
+  "overrides": {
+    "postcss-safe-parser": {
+      "postcss": "^8.4.31"
+    }
   }
 }

@@ -38,5 +38,8 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 .env
+frontend/.env.production
+# Local JWT for scripts/retrain-demo-chatbots.ps1 (never commit)
+scripts/.retrain-jwt
 # Crawlee storage directory
 storage/
