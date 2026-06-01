@@ -121,7 +121,7 @@ export const ChatBot = ({
 				FALLBACK_PATTERNS.some((p) => initialText.toLowerCase().includes(p));
 
 			if (shouldRetry) {
-				const expandedQuestion = `Расскажи подробнее по данным сайта: ${question}`;
+				const expandedQuestion = `Сайт деректері бойынша толығырақ түсіндіріңіз: ${question}`;
 				response = await getChatBotAnswer(newSessionId, expandedQuestion);
 			}
  
